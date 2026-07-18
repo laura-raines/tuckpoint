@@ -1,7 +1,9 @@
+import { getBuilding } from "@/lib/data";
 import { DEMO_BUILDING } from "@/lib/demo-building";
 
-export default function BuildingHeader() {
-  const { address, unitCount, yearBuilt } = DEMO_BUILDING;
+export default async function BuildingHeader() {
+  const building = await getBuilding();
+  const { address, unitCount, yearBuilt } = building ?? DEMO_BUILDING;
   return (
     <header className="border-b border-line bg-card">
       <div className="mx-auto flex max-w-5xl items-baseline justify-between px-6 py-3">

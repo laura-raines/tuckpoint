@@ -1,31 +1,9 @@
 import { createHash } from "node:crypto";
-import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
-import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { firestore } from "./firestore";
 
 // Demo insurance (CLAUDE.md): every external call goes through here, responses
 // land in Firestore cache/{hash}, and reads hit the cache first so the demo
-// runs with wifi off. Until Firebase is wired (build step 2), calls pass
-// through uncached with a warning.
-
-let db: Firestore | null | undefined;
-
-function cacheDb(): Firestore | null {
-  if (db !== undefined) return db;
-  try {
-    const app =
-      getApps()[0] ??
-      initializeApp({
-        credential: process.env.FIREBASE_SERVICE_ACCOUNT
-          ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
-          : applicationDefault(),
-      });
-    db = getFirestore(app);
-  } catch (err) {
-    console.warn("cache: Firestore not configured — external calls are uncached", err);
-    db = null;
-  }
-  return db;
-}
+// runs with wifi off. Without credentials, calls pass through uncached.
 
 /**
  * Run `fn` unless a cached response exists for `key`. Use for non-URL calls
@@ -34,7 +12,7 @@ function cacheDb(): Firestore | null {
 export async function cached<T>(key: unknown, fn: () => Promise<T>): Promise<T> {
   const keyString = JSON.stringify(key);
   const hash = createHash("sha256").update(keyString).digest("hex");
-  const ref = cacheDb()?.collection("cache").doc(hash);
+  const ref = firestore()?.collection("cache").doc(hash);
 
   if (ref) {
     try {
