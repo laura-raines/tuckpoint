@@ -5,6 +5,7 @@ import { BUILDING_ID } from "@/lib/constants";
 import { requireFirestore } from "@/lib/firestore";
 import {
   BASELINE_SYSTEMS,
+  INVENTORY_CANDIDATES,
   SYSTEM_DEFAULTS,
   defaultsForName,
   fetchPermits,
@@ -217,77 +218,112 @@ export async function confirmPermits(formData: FormData) {
   }
 
   await batch.commit();
-  // Confirmation lands directly on the reveal — gaps on the timeline link to
-  // the last-work page for anything the city missed.
-  redirect("/");
+  redirect("/setup/inventory");
 }
 
-export async function saveSystemYears(formData: FormData) {
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+export async function saveInventory(formData: FormData) {
   const ref = buildingRef();
   const snap = await ref.collection("systems").get();
   const currentYear = new Date().getFullYear();
   const writes: Promise<unknown>[] = [];
+  const existing = new Map(
+    snap.docs.map((d) => [d.id, d.data() as BuildingSystem]),
+  );
 
-  // "Add an item" row: any tracked part of the building plus the year it was
-  // last updated, fixed, or maintained.
+  // Checklist rows: everything on record plus the standard candidates.
+  const rows = new Map<string, string>(); // id -> display name
+  for (const [id, system] of existing) rows.set(id, system.name);
+  for (const name of INVENTORY_CANDIDATES) {
+    const present = [...existing.values()].some(
+      (s) => s.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (!present) rows.set(slug(name), name);
+  }
+
+  for (const [id, name] of rows) {
+    const system = existing.get(id);
+    // City-permitted rows are always kept and their years are the city's.
+    if (system?.installSource === "permit") continue;
+
+    const have = formData.get(`have-${id}`) != null;
+    if (!have) {
+      if (system) writes.push(ref.collection("systems").doc(id).delete());
+      continue;
+    }
+
+    const raw = String(formData.get(`year-${id}`) ?? "").trim();
+    let installYear: number | null = null;
+    if (raw !== "") {
+      const year = Number(raw);
+      if (!/^\d{4}$/.test(raw) || year < 1870 || year > currentYear) {
+        redirect("/setup/inventory?error=year");
+      }
+      installYear = year;
+    }
+
+    const defaults = defaultsForName(name);
+    const next: BuildingSystem = {
+      name: defaults?.name ?? name,
+      category: system?.category ?? defaults?.category ?? "other",
+      installYear,
+      installSource: installYear != null ? "manual" : null,
+      material: system?.material ?? null,
+      typicalLifeMin: system?.typicalLifeMin ?? defaults?.typicalLifeMin ?? null,
+      typicalLifeMax: system?.typicalLifeMax ?? defaults?.typicalLifeMax ?? null,
+      estCostLow: system?.estCostLow ?? defaults?.estCostLow ?? null,
+      estCostHigh: system?.estCostHigh ?? defaults?.estCostHigh ?? null,
+      status: installYear != null ? "documented" : "unknown",
+    };
+    writes.push(ref.collection("systems").doc(id).set(next));
+  }
+
+  // Free-text "add an item" row: anything else worth tracking, with the year
+  // it was last updated, fixed, or maintained.
   const newName = String(formData.get("new-name") ?? "").replace(/\s+/g, " ").trim();
   const newYearRaw = String(formData.get("new-year") ?? "").trim();
   if (newName !== "") {
     const year = Number(newYearRaw);
     if (!/^\d{4}$/.test(newYearRaw) || year < 1870 || year > currentYear) {
-      redirect("/setup/systems?error=year");
+      redirect("/setup/inventory?error=year");
     }
-    if (newName.length > 40) redirect("/setup/systems?error=name");
+    if (newName.length > 40) redirect("/setup/inventory?error=name");
     const defaults = defaultsForName(newName);
-    const id = (defaults?.name ?? newName).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const existing = snap.docs.find((d) => d.id === id)?.data() as
-      | BuildingSystem
-      | undefined;
-    if (existing?.installSource === "permit") {
-      redirect("/setup/systems?error=exists");
+    const id = slug(defaults?.name ?? newName);
+    const prior = existing.get(id);
+    if (prior?.installSource === "permit") {
+      redirect("/setup/inventory?error=exists");
     }
     const system: BuildingSystem = {
       name: defaults?.name ?? newName,
-      category: existing?.category ?? defaults?.category ?? "other",
+      category: prior?.category ?? defaults?.category ?? "other",
       installYear: year,
       installSource: "manual",
-      material: existing?.material ?? null,
-      typicalLifeMin: existing?.typicalLifeMin ?? defaults?.typicalLifeMin ?? null,
-      typicalLifeMax: existing?.typicalLifeMax ?? defaults?.typicalLifeMax ?? null,
-      estCostLow: existing?.estCostLow ?? defaults?.estCostLow ?? null,
-      estCostHigh: existing?.estCostHigh ?? defaults?.estCostHigh ?? null,
+      material: prior?.material ?? null,
+      typicalLifeMin: prior?.typicalLifeMin ?? defaults?.typicalLifeMin ?? null,
+      typicalLifeMax: prior?.typicalLifeMax ?? defaults?.typicalLifeMax ?? null,
+      estCostLow: prior?.estCostLow ?? defaults?.estCostLow ?? null,
+      estCostHigh: prior?.estCostHigh ?? defaults?.estCostHigh ?? null,
       status: "documented",
     };
     writes.push(ref.collection("systems").doc(id).set(system));
   }
 
-  for (const doc of snap.docs) {
-    const system = doc.data() as BuildingSystem;
-    // City-permitted years are the city's record; manual entry never edits them.
-    if (system.installSource === "permit") continue;
-
-    const raw = String(formData.get(`year-${doc.id}`) ?? "").trim();
-    if (raw === "") {
-      // Cleared a manually-entered year → back to an honest gap.
-      if (system.installSource === "manual") {
-        writes.push(
-          doc.ref.update({ installYear: null, installSource: null, status: "unknown" }),
-        );
-      }
-      continue;
+  // Money set aside — optional, feeds the reveal's reserve line.
+  const balanceRaw = String(formData.get("reserveBalance") ?? "").trim();
+  if (balanceRaw !== "") {
+    const balance = Number(balanceRaw);
+    if (!Number.isFinite(balance) || balance < 0) {
+      redirect("/setup/inventory?error=balance");
     }
-
-    const year = Number(raw);
-    if (!/^\d{4}$/.test(raw) || year < 1870 || year > currentYear) {
-      redirect("/setup/systems?error=year");
-    }
-    if (year !== system.installYear || system.status !== "documented") {
-      writes.push(
-        doc.ref.update({ installYear: year, installSource: "manual", status: "documented" }),
-      );
-    }
+    writes.push(
+      ref.update({
+        reserves: { balance, asOf: new Date().toISOString().slice(0, 10) },
+      }),
+    );
   }
 
   await Promise.all(writes);
-  redirect("/");
+  redirect("/?welcome=1");
 }

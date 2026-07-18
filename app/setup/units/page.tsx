@@ -28,7 +28,8 @@ export default async function SetupUnitsPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="font-display text-[28px] font-semibold">Ownership</h1>
+      <p className="label-caps text-muted">Step 2 of 4 · ownership</p>
+      <h1 className="mt-1 font-display text-[28px] font-semibold">Ownership</h1>
       <p className="mt-2 text-muted">
         Percentage of ownership per unit, from your declaration. Cost shares
         are split by these numbers.

@@ -53,7 +53,8 @@ export default async function SetupPermitsPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="font-display text-[28px] font-semibold">
+      <p className="label-caps text-muted">Step 3 of 4 · city records</p>
+      <h1 className="mt-1 font-display text-[28px] font-semibold">
         Permits on file with the city
       </h1>
       <p className="mt-2 text-muted">

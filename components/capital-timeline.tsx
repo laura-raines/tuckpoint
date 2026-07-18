@@ -84,7 +84,7 @@ export default function CapitalTimeline({
                     {s.status === "unknown" ? (
                       <div className="hatch absolute inset-0 flex items-center rounded-[3px] px-2.5">
                         <Link
-                          href="/setup/systems"
+                          href="/setup/inventory"
                           className="text-[12px] text-muted underline"
                         >
                           no permit record — add date

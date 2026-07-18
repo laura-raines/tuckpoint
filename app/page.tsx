@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import CapitalTimeline from "@/components/capital-timeline";
 import FundingPanel from "@/components/funding-panel";
 import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
+import { nearTermWindows } from "@/lib/funding";
 import { isNearTerm, projectedWindow, todayFraction, windowLabel } from "@/lib/timeline";
-import type { BuildingSystem, WithId } from "@/lib/types";
+import type { Building, BuildingSystem, Unit, WithId } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,29 @@ const dollars = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
+
+/** The Big Reveal line after onboarding: reserves + the 3-year forecast. */
+function revealSummary(
+  building: Building,
+  systems: WithId<BuildingSystem>[],
+  units: WithId<Unit>[],
+): string {
+  const today = todayFraction();
+  const opening = nearTermWindows(building, systems, units, today).filter(
+    (w) => w.window.startYear <= Math.floor(today) + 3,
+  );
+  const reserves =
+    building.reserves.balance > 0
+      ? `Money set aside today: ${dollars.format(building.reserves.balance)}.`
+      : "Nothing set aside for big repairs yet.";
+  if (opening.length === 0) {
+    return `${reserves} Nothing is projected to come due in the next three years.`;
+  }
+  const total = opening.reduce((sum, w) => sum + w.estMid, 0);
+  const names = opening.map((w) => w.system.name.toLowerCase()).join(" and ");
+  const by = Math.max(...opening.map((w) => w.window.endYear));
+  return `${reserves} Based on typical lifespans, anticipate about ${dollars.format(total)} of ${names} work by ${by}.`;
+}
 
 /** One sentence on the 3-year horizon, shown above the timeline. */
 function whatsNext(systems: WithId<BuildingSystem>[], today: number): string {
@@ -46,13 +71,20 @@ function whatsNext(systems: WithId<BuildingSystem>[], today: number): string {
   return parts.join(" ");
 }
 
-export default async function Home() {
-  const [building, systems, events, units] = await Promise.all([
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
+  const [{ welcome }, building, systems, events, units] = await Promise.all([
+    searchParams,
     getBuilding(),
     getSystems(),
     getEvents(),
     getUnits(),
   ]);
+  // Never a blank dashboard: an empty record goes to onboarding.
+  if (!building) redirect("/setup");
 
   return (
     <>
@@ -86,6 +118,13 @@ export default async function Home() {
         generated from the building&rsquo;s live record.
       </p>
 
+      {welcome === "1" && systems.length > 0 && (
+        <div className="mt-6 rounded-md border border-line bg-card p-4">
+          <p className="label-caps text-muted">The record is live</p>
+          <p className="mt-1">{revealSummary(building, systems, units)}</p>
+        </div>
+      )}
+
       <section className="mt-10">
         <h2 className="mortar pb-2 font-display text-xl font-medium">
           Capital timeline
@@ -112,7 +151,7 @@ export default async function Home() {
               </p>
             </div>
             <Link
-              href="/setup/systems"
+              href="/setup/inventory"
               className="shrink-0 rounded border border-ink px-3 py-1.5 text-[13px] font-medium"
             >
               Add last work

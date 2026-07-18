@@ -66,7 +66,21 @@ export const SYSTEM_DEFAULTS: Record<
   Boiler: { category: "heating", typicalLifeMin: 25, typicalLifeMax: 30, estCostLow: 4000, estCostHigh: 8000 },
   Electrical: { category: "electrical", typicalLifeMin: 30, typicalLifeMax: 40, estCostLow: 8000, estCostHigh: 15000 },
   "Water heater": { category: "plumbing", typicalLifeMin: 10, typicalLifeMax: 15, estCostLow: 1500, estCostHigh: 3000 },
+  "Sump pump": { category: "plumbing", typicalLifeMin: 8, typicalLifeMax: 12, estCostLow: 800, estCostHigh: 2000 },
+  Gutters: { category: "exterior", typicalLifeMin: 15, typicalLifeMax: 25, estCostLow: 1500, estCostHigh: 4000 },
 };
+
+/** Quick-inventory checklist order: the brief's five, then common extras. */
+export const INVENTORY_CANDIDATES = [
+  "Roof",
+  "Masonry",
+  "Porch",
+  "Boiler",
+  "Water heater",
+  "Gutters",
+  "Sump pump",
+  "Electrical",
+];
 
 /** Case-insensitive defaults lookup for manually added items. */
 export function defaultsForName(name: string) {

@@ -13,12 +13,14 @@ export default async function SetupPage({
 
   return (
     <div className="max-w-md">
-      <h1 className="font-display text-[28px] font-semibold">
-        Set up the building
+      <p className="label-caps text-muted">Step 1 of 4 · the building</p>
+      <h1 className="mt-1 font-display text-[28px] font-semibold">
+        {building ? "Set up the building" : "Welcome to Tuckpoint"}
       </h1>
       <p className="mt-2 text-muted">
-        The address as the city records it — number, direction, street. Permits
-        on file are found from this.
+        {building
+          ? "The address as the city records it — number, direction, street. Permits on file are found from this."
+          : "The building's record starts with an address. Enter it the way the city writes it — the permits already on file do the rest."}
       </p>
 
       {error && (
