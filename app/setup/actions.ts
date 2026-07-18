@@ -217,7 +217,9 @@ export async function confirmPermits(formData: FormData) {
   }
 
   await batch.commit();
-  redirect("/setup/systems");
+  // Confirmation lands directly on the reveal — gaps on the timeline link to
+  // the last-work page for anything the city missed.
+  redirect("/");
 }
 
 export async function saveSystemYears(formData: FormData) {

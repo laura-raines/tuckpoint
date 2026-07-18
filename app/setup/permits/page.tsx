@@ -6,6 +6,7 @@ import {
   communityAreaOf,
   fetchPermits,
   permitTitle,
+  permitYear,
   systemForPermit,
   type AreaMasonryStat,
   type SocrataPermit,
@@ -36,6 +37,20 @@ export default async function SetupPermitsPage() {
     permits = null;
   }
 
+  // "The city already knew this building" — latest year per matched system.
+  const found = new Map<string, number>();
+  for (const p of permits ?? []) {
+    const system = systemForPermit(p);
+    const year = permitYear(p);
+    if (system && year != null) {
+      found.set(system, Math.max(found.get(system) ?? 0, year));
+    }
+  }
+  const foundNames = [...found.entries()].map(
+    ([system, year]) => `${system} ’${String(year).slice(-2)}`,
+  );
+  const unmatchedCount = (permits?.length ?? 0) - found.size;
+
   return (
     <div className="max-w-3xl">
       <h1 className="font-display text-[28px] font-semibold">
@@ -46,6 +61,21 @@ export default async function SetupPermitsPage() {
         Chicago&rsquo;s building permit data. Nothing lands in the
         building&rsquo;s record until you confirm it.
       </p>
+
+      {permits != null && permits.length > 0 && (
+        <p className="mt-4">
+          The city already knew this building
+          {foundNames.length > 0 && (
+            <>
+              {" — "}
+              <span className="data-mono">{foundNames.join(" · ")}</span>
+            </>
+          )}
+          {unmatchedCount > 0 &&
+            `${foundNames.length > 0 ? ", plus" : " —"} ${unmatchedCount} more permit${unmatchedCount === 1 ? "" : "s"}`}
+          . Confirm below and the timeline builds itself.
+        </p>
+      )}
 
       {permits === null && (
         <div className="mt-6 rounded-md border border-line bg-card p-4">

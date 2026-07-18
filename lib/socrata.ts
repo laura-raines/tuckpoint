@@ -54,18 +54,18 @@ export function systemForPermit(p: SocrataPermit): string | null {
   return null;
 }
 
-// Typical lifespans and rough replacement ranges for imported/baseline
-// systems. Honest wide ranges — false precision is the enemy.
+// Typical lifespans plus the brief's fallback cost constants (Chicago 2–4
+// unit ranges) for when no permit/area data exists. Always shown as ranges.
 export const SYSTEM_DEFAULTS: Record<
   string,
   { category: string; typicalLifeMin: number; typicalLifeMax: number; estCostLow: number; estCostHigh: number }
 > = {
-  Roof: { category: "roof", typicalLifeMin: 18, typicalLifeMax: 22, estCostLow: 18000, estCostHigh: 26000 },
-  Masonry: { category: "masonry", typicalLifeMin: 20, typicalLifeMax: 25, estCostLow: 16000, estCostHigh: 26000 },
-  Porch: { category: "porch", typicalLifeMin: 15, typicalLifeMax: 20, estCostLow: 15000, estCostHigh: 30000 },
-  Boiler: { category: "heating", typicalLifeMin: 25, typicalLifeMax: 30, estCostLow: 9000, estCostHigh: 14000 },
+  Roof: { category: "roof", typicalLifeMin: 18, typicalLifeMax: 22, estCostLow: 8000, estCostHigh: 15000 },
+  Masonry: { category: "masonry", typicalLifeMin: 20, typicalLifeMax: 25, estCostLow: 10000, estCostHigh: 30000 },
+  Porch: { category: "porch", typicalLifeMin: 15, typicalLifeMax: 20, estCostLow: 15000, estCostHigh: 40000 },
+  Boiler: { category: "heating", typicalLifeMin: 25, typicalLifeMax: 30, estCostLow: 4000, estCostHigh: 8000 },
   Electrical: { category: "electrical", typicalLifeMin: 30, typicalLifeMax: 40, estCostLow: 8000, estCostHigh: 15000 },
-  "Water heater": { category: "plumbing", typicalLifeMin: 10, typicalLifeMax: 15, estCostLow: 1800, estCostHigh: 3500 },
+  "Water heater": { category: "plumbing", typicalLifeMin: 10, typicalLifeMax: 15, estCostLow: 1500, estCostHigh: 3000 },
 };
 
 /** Case-insensitive defaults lookup for manually added items. */

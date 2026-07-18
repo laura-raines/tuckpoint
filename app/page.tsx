@@ -2,7 +2,8 @@ import Link from "next/link";
 import CapitalTimeline from "@/components/capital-timeline";
 import FundingPanel from "@/components/funding-panel";
 import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
-import { todayFraction } from "@/lib/timeline";
+import { isNearTerm, projectedWindow, todayFraction, windowLabel } from "@/lib/timeline";
+import type { BuildingSystem, WithId } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,39 @@ const dollars = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
+
+/** One sentence on the 3-year horizon, shown above the timeline. */
+function whatsNext(systems: WithId<BuildingSystem>[], today: number): string {
+  const todayYear = Math.floor(today);
+  const opening = systems
+    .filter((s) => s.status === "documented")
+    .map((s) => ({ system: s, window: projectedWindow(s) }))
+    .filter(
+      (x): x is { system: WithId<BuildingSystem>; window: NonNullable<ReturnType<typeof projectedWindow>> } =>
+        x.window != null && isNearTerm(x.window, todayYear, 3),
+    )
+    .sort((a, b) => a.window.startYear - b.window.startYear);
+  const gaps = systems.filter((s) => s.status === "unknown");
+
+  const parts: string[] = [];
+  if (opening.length === 0) {
+    parts.push("No projected windows open within three years.");
+  } else {
+    for (const { system, window } of opening) {
+      const cost =
+        system.estCostLow != null && system.estCostHigh != null
+          ? `, est ${dollars.format(system.estCostLow)}–${dollars.format(system.estCostHigh)}`
+          : "";
+      parts.push(`${system.name}'s window opens ${windowLabel(window)}${cost}.`);
+    }
+  }
+  if (gaps.length > 0) {
+    parts.push(
+      `${gaps.map((g) => g.name).join(", ")} ${gaps.length === 1 ? "has" : "have"} no record yet.`,
+    );
+  }
+  return parts.join(" ");
+}
 
 export default async function Home() {
   const [building, systems, events, units] = await Promise.all([
@@ -36,20 +70,32 @@ export default async function Home() {
           <a
             href="/api/disclosure"
             target="_blank"
-            className="rounded bg-ink px-3 py-1.5 text-[13px] font-medium text-paper"
+            className="flex flex-col items-center rounded bg-ink px-3 py-1.5 text-paper"
           >
-            Generate §22.1
+            <span className="text-[13px] font-medium leading-tight">
+              Generate Seller&rsquo;s Packet
+            </span>
+            <span className="text-[10px] leading-tight text-ink-faint">
+              §22.1 disclosure statement
+            </span>
           </a>
         </div>
       </div>
       <p className="mt-2 text-muted">
-        Permit history, capital timeline, and §22.1 disclosures.
+        Permit history, capital timeline, and the seller&rsquo;s packet — all
+        generated from the building&rsquo;s live record.
       </p>
 
       <section className="mt-10">
         <h2 className="mortar pb-2 font-display text-xl font-medium">
           Capital timeline
         </h2>
+        {systems.length > 0 && (
+          <p className="mt-3">
+            <span className="label-caps mr-2 text-muted">What&rsquo;s next</span>
+            {whatsNext(systems, todayFraction())}
+          </p>
+        )}
         {systems.length === 0 ? (
           <div className="mt-4 rounded-md border border-line bg-card p-4">
             <p className="label-caps text-muted">No records yet</p>

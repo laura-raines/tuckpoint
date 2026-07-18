@@ -42,10 +42,16 @@ export interface BuildingSystem {
   estCostLow: number | null;
   estCostHigh: number | null;
   status: SystemStatus;
+  // Health-card fields — schema only for the weekend; detail view is backlog.
+  lastInspection?: string;
+  conditionPhotoUrl?: string;
+  warrantyDocUrl?: string;
+  lastVendor?: string;
 }
 
 export type EventType = "permit" | "maintenance" | "decision" | "assessment";
 export type EventSource = "city" | "manual" | "extracted";
+export type WorkStatus = "requested" | "scheduled" | "done";
 
 export interface BuildingEvent {
   type: EventType;
@@ -58,6 +64,7 @@ export interface BuildingEvent {
   permitNumber?: string;
   docUrl?: string;
   decision?: { summary: string; vote: string; status: "filed" };
+  workStatus?: WorkStatus; // absent means "done"; ticket workflow is post-weekend
 }
 
 export type DocumentCategory =
