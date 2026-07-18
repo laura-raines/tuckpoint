@@ -16,7 +16,7 @@ export default function LoginPage() {
             type="submit"
             className="w-full rounded bg-ink px-4 py-2.5 text-[14px] font-medium text-paper"
           >
-            Sign in as steward
+            Manage your house
           </button>
         </form>
         <p className="mt-3 text-[12px] text-muted">

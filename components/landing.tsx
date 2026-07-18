@@ -79,7 +79,7 @@ export default function Landing() {
           type="submit"
           className="rounded bg-ink px-5 py-2.5 text-[14px] font-medium text-paper"
         >
-          Sign in as steward
+          Manage your house
         </button>
         <span className="text-[12px] text-muted">
           Demo session — no password.
