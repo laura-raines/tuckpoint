@@ -48,18 +48,18 @@ Register: a well-designed public institution. Warm, sturdy, plainspoken. The app
 ### Colors (exact values, no substitutes, no Tailwind default palette)
 
 ```
---ink:        #3B2E25   /* primary text, structure, documented history (warm espresso) */
---ink-soft:   #6F5B49   /* secondary fills, older history bars */
---ink-faint:  #EBDCC9   /* text on ink backgrounds */
---paper:      #FAF3E7   /* page background (warm cream) */
+--ink:        #232E40   /* primary text, structure, documented history (slate) */
+--ink-soft:   #46536B   /* secondary fills, older history bars */
+--ink-faint:  #C6D0DE   /* text on ink backgrounds */
+--paper:      #F8F3E9   /* page background (warm paper — aligned with homepage) */
 --card:       #FFFDF8   /* raised cards */
---line:       #E3D6C0   /* hairline borders */
---track:      #F1E8D7   /* timeline empty track */
---muted:      #7A6A55   /* secondary text, labels */
---stamp:      #A0452A   /* ONLY: projected costs, money due, action needed (terracotta) */
---stamp-bg:   #FAECE2   /* tint behind stamp elements */
---filed:      #5D6C45   /* ONLY: confirmations — filed, approved, paid, complete (olive) */
---filed-bg:   #EFF2E3   /* tint behind filed elements */
+--line:       #DCD4C2   /* hairline borders */
+--track:      #EAE3D2   /* timeline empty track */
+--muted:      #79715F   /* secondary text, labels */
+--stamp:      #B3372E   /* ONLY: projected costs, money due, action needed */
+--stamp-bg:   #F7E7E2   /* tint behind stamp elements */
+--filed:      #5E7255   /* ONLY: confirmations — filed, approved, paid, complete */
+--filed-bg:   #EDF1E7   /* tint behind filed elements */
 ```
 
 Color discipline (non-negotiable):

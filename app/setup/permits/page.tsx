@@ -116,7 +116,7 @@ export default async function SetupPermitsPage() {
                     name="permit"
                     value={permit.permit_}
                     defaultChecked
-                    className="relative top-0.5 size-4 shrink-0 accent-[#3b2e25]"
+                    className="relative top-0.5 size-4 shrink-0 accent-[#232e40]"
                   />
                   <span className="data-mono shrink-0 text-muted">
                     {permit.issue_date?.slice(0, 10) ?? "date unknown"}

@@ -37,9 +37,9 @@ Font.register({
 });
 Font.registerHyphenationCallback((word) => [word]);
 
-const INK = "#3B2E25";
-const MUTED = "#7A6A55";
-const LINE = "#E3D6C0";
+const INK = "#232E40";
+const MUTED = "#79715F";
+const LINE = "#DCD4C2";
 
 const s = StyleSheet.create({
   page: {

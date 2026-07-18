@@ -81,7 +81,7 @@ export default async function FundingPage({
                 name="allocationMethod"
                 value={value}
                 defaultChecked={fundingPolicy.allocationMethod === value}
-                className="size-4 accent-[#3b2e25]"
+                className="size-4 accent-[#232e40]"
               />
               <span className="text-[14px]">{label}</span>
             </label>
