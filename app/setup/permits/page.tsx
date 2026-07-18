@@ -2,9 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getBuilding } from "@/lib/data";
 import {
+  areaMasonryStat,
+  communityAreaOf,
   fetchPermits,
   permitTitle,
   systemForPermit,
+  type AreaMasonryStat,
   type SocrataPermit,
 } from "@/lib/socrata";
 import { confirmPermits } from "../actions";
@@ -22,10 +25,13 @@ export default async function SetupPermitsPage() {
   if (!building) redirect("/setup");
 
   let permits: SocrataPermit[] | null = null;
+  let stat: AreaMasonryStat | null = null;
   try {
     permits = (
       await fetchPermits(building.streetNumber, building.streetName)
     ).filter((p) => p.permit_ != null);
+    const area = communityAreaOf(permits);
+    if (area) stat = await areaMasonryStat(area);
   } catch {
     permits = null;
   }
@@ -101,6 +107,22 @@ export default async function SetupPermitsPage() {
               );
             })}
           </ul>
+        )}
+
+        {stat && (
+          <p className="mt-3 text-[13px] text-muted">
+            For context: recent masonry permits on 2–4 unit buildings in this
+            part of the city averaged{" "}
+            <span className="data-mono">
+              {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+                maximumFractionDigits: 0,
+              }).format(stat.avgCost)}
+            </span>{" "}
+            across <span className="data-mono">{stat.count}</span> permits since
+            2015, per city records.
+          </p>
         )}
 
         <div className="mt-5 flex items-center gap-3">

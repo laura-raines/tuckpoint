@@ -15,6 +15,7 @@ export interface SocrataPermit {
   street_name?: string;
   suffix?: string;
   pin1?: string;
+  community_area?: string;
 }
 
 export async function fetchPermits(
@@ -88,6 +89,54 @@ export function permitTitle(p: SocrataPermit): string {
 export function permitYear(p: SocrataPermit): number | null {
   const y = Number(p.issue_date?.slice(0, 4));
   return Number.isInteger(y) && y > 1870 ? y : null;
+}
+
+export interface AreaMasonryStat {
+  avgCost: number;
+  count: number;
+}
+
+/**
+ * Demo stat: recent masonry/tuckpointing permits on 2–4 unit buildings in the
+ * same community area (the dataset has no property ZIP), average reported
+ * cost. Single aggregation query, cached like everything else.
+ */
+export async function areaMasonryStat(
+  communityArea: string,
+): Promise<AreaMasonryStat | null> {
+  const area = communityArea.replace(/\D/g, "");
+  if (!area) return null;
+  // reported_cost is text — cast before comparing, or SoQL compares
+  // lexicographically. Bounds trim mis-tagged commercial jobs.
+  const where =
+    `community_area='${area}' AND issue_date > '2015-01-01T00:00:00.000' AND ` +
+    `reported_cost::number BETWEEN 2000 AND 100000 AND ` +
+    `(upper(work_description) LIKE '%TUCKPOINT%' OR upper(work_description) LIKE '%MASONRY%') AND ` +
+    `(upper(work_description) LIKE '%2 DU%' OR upper(work_description) LIKE '%3 DU%' OR upper(work_description) LIKE '%4 DU%')`;
+  const params = new URLSearchParams({
+    $select: "avg(reported_cost::number) AS avg_cost, count(1) AS n",
+    $where: where,
+  });
+  if (process.env.SOCRATA_APP_TOKEN) {
+    params.set("$$app_token", process.env.SOCRATA_APP_TOKEN);
+  }
+  try {
+    const rows = await cachedFetchJson<Array<{ avg_cost?: string; n?: string }>>(
+      `${DATASET_URL}?${params.toString()}`,
+    );
+    const avgCost = Number(rows[0]?.avg_cost);
+    const count = Number(rows[0]?.n);
+    if (!Number.isFinite(avgCost) || !Number.isFinite(count) || count < 3) return null;
+    return { avgCost, count };
+  } catch (err) {
+    console.warn("areaMasonryStat failed", err);
+    return null;
+  }
+}
+
+/** Community area of this address per the city's permit records. */
+export function communityAreaOf(permits: SocrataPermit[]): string | null {
+  return permits.find((p) => p.community_area)?.community_area ?? null;
 }
 
 /** 14-digit Cook County PIN → XX-XX-XXX-XXX-XXXX. */
