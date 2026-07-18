@@ -138,6 +138,35 @@ export default async function Home({
       )}
 
       <section className="mt-10">
+        <div className="mortar flex items-baseline justify-between pb-2">
+          <h2 className="font-display text-xl font-medium">Documents</h2>
+          <Link href="/documents" className="text-[13px] text-muted underline">
+            Manage vault
+          </Link>
+        </div>
+        <div className="mt-4 rounded-md border border-line bg-card p-4">
+          {documents.length === 0 ? (
+            <p className="text-muted">
+              No documents on file yet.{" "}
+              <Link href="/documents" className="underline">
+                Add the declaration, insurance, and minutes
+              </Link>{" "}
+              — they feed the Seller&rsquo;s Packet.
+            </p>
+          ) : (
+            <p>
+              <span className="data-mono">{documents.length}</span> on file:{" "}
+              {[...new Set(documents.map((d) => d.category))].join(", ")}.{" "}
+              <Link href="/documents" className="underline">
+                Manage vault
+              </Link>
+              .
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-10">
         <h2 className="mortar pb-2 font-display text-xl font-medium">
           Capital timeline
         </h2>
@@ -225,35 +254,6 @@ export default async function Home({
             ))}
           </ul>
         )}
-      </section>
-
-      <section className="mt-10">
-        <div className="mortar flex items-baseline justify-between pb-2">
-          <h2 className="font-display text-xl font-medium">Documents</h2>
-          <Link href="/documents" className="text-[13px] text-muted underline">
-            Manage vault
-          </Link>
-        </div>
-        <div className="mt-4 rounded-md border border-line bg-card p-4">
-          {documents.length === 0 ? (
-            <p className="text-muted">
-              No documents on file yet.{" "}
-              <Link href="/documents" className="underline">
-                Add the declaration, insurance, and minutes
-              </Link>{" "}
-              — they feed the Seller&rsquo;s Packet.
-            </p>
-          ) : (
-            <p>
-              <span className="data-mono">{documents.length}</span> on file:{" "}
-              {[...new Set(documents.map((d) => d.category))].join(", ")}.{" "}
-              <Link href="/documents" className="underline">
-                Manage vault
-              </Link>
-              .
-            </p>
-          )}
-        </div>
       </section>
     </>
   );
