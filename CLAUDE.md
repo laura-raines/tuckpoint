@@ -13,11 +13,13 @@ Business model (context, not weekend scope): $50/building/year subscription (ass
 ## Weekend scope (build EXACTLY this, resist everything else)
 
 Demo arc, in order:
-1. Type a Chicago address → building permits auto-import from the city's open data → capital timeline pre-populates ("the city already knew your building").
-2. Timeline view: documented history + projected replacement windows + one honest gap (porch, unknown).
+1. Type a Chicago address → building permits auto-import from the city's open data → "we found your roof (2014) and masonry (2008) in city records" → steward confirms with one click ("the city already knew your building").
+2. Confirmation lands DIRECTLY on the reveal, not a blank dashboard: capital timeline pre-populated — documented history + projected windows + one honest gap (porch, unknown) — with the 3-year horizon summarized in one sentence up top.
 3. Funding math: "$22K masonry projected 2028–2031 → 50% from reserves, unit 2's share ~$3,740 ≈ $95/month starting now."
-4. Click **Generate §22.1** → complete disclosure PDF in seconds.
+4. Click **Generate Seller's Packet (§22.1)** → complete disclosure PDF in seconds.
 5. Second AI moment: upload a photo/PDF of a contractor invoice → Claude extracts a structured maintenance entry.
+
+Onboarding principle: the app does the work before asking the user for any. Never show an empty registry; the permit import IS the first-run experience.
 
 IN scope: building setup w/ permit import, maintenance/capital log, capital timeline screen, funding policy + per-unit math, §22.1 PDF generation, invoice extraction.
 OUT of scope (do not build): auth beyond a fake logged-in steward, payments, email digests, zero-login approval links, meetings module UI (seed decision data directly), disclosure rescue flow, mobile app, dark mode.
@@ -95,7 +97,9 @@ Color discipline (non-negotiable):
 
 ### Copy voice
 
-Plain language first, statute underneath: "Money set aside for big repairs" with "(reserve fund — §22.1(a) disclosure)" as secondary text. Buttons verb-first ("Generate §22.1", "Add work", "Set funding policy"). The estimate framing sentence, verbatim wherever projections appear: "A projection from public records and typical lifespans — not an inspection." No exclamation points. No "simply/just/easy."
+Plain language first, statute underneath: "Money set aside for big repairs" with "(reserve fund — §22.1(a) disclosure)" as secondary text. The disclosure feature is labeled **"Seller's Packet"** with "§22.1 disclosure statement" as its subtitle — but copy must always frame it as GENERATED from the building's live record, never as an exported folder of stored documents. Buttons verb-first ("Generate Seller's Packet", "Add work", "Set funding policy"). The estimate framing sentence, verbatim wherever projections appear: "A projection from public records and typical lifespans — not an inspection." No exclamation points. No "simply/just/easy."
+
+Fallback cost constants when no permit/ZIP data exists (Chicago 2–4 unit ranges): roof $8–15K, boiler $4–8K, tuckpointing $10–30K, porch rebuild $15–40K, water heater $1.5–3K. Always shown as ranges.
 
 ## Data model (Firestore)
 
@@ -117,12 +121,16 @@ buildings/{id}/units/{unitId}
 buildings/{id}/systems/{systemId}
   name ("Roof"), category, installYear, installSource ("permit" | "manual" | null),
   material, typicalLifeMin, typicalLifeMax, estCostLow, estCostHigh,
-  status: "documented" | "unknown"
+  status: "documented" | "unknown",
+  lastInspection?, conditionPhotoUrl?, warrantyDocUrl?, lastVendor?
+  // registry can include beyond the core five: water heater, sump pump,
+  // gutters/downspouts, electrical panel, sidewalk, parking — seed only five for demo
 
 buildings/{id}/events/{eventId}      // ONE collection = the whole timeline
   type: "permit" | "maintenance" | "decision" | "assessment"
   date, systemId?, title, cost?, contractor?, source ("city" | "manual" | "extracted"),
-  permitNumber?, docUrl?, decision?: { summary, vote ("3–0"), status: "filed" }
+  permitNumber?, docUrl?, decision?: { summary, vote ("3–0"), status: "filed" },
+  workStatus?: "requested" | "scheduled" | "done"   // default "done"; full ticket workflow is post-weekend
 
 buildings/{id}/documents/{docId}
   category: "declaration" | "bylaws" | "rules" | "insurance" | "minutes" | "other"
@@ -166,6 +174,15 @@ If behind schedule, cut from the bottom: 7 first, then 6 becomes a beautifully s
 
 - No dark mode, no responsive heroics (laptop demo), no auth flows, no Stripe.
 - No red anywhere except money/attention semantics. No green CTAs. No shadows. No Title Case.
+- **No status dots or traffic-light (green/yellow/red) indicators on assets.** Urgency is expressed through the timeline's own semantics: near-term projection → stamp treatment + dollar figure + "What's next" placement. "Your roof is yellow" is banned; "'32–36, ~$18K, reserves 65% on pace" is the product.
+- The capital timeline is center stage on the dashboard — asset cards, if any, are a secondary row, never the hero, never horizontal-scroll.
 - No single-year projections. No silently-omitted unknowns — every gap is visible and labeled.
 - No uncached network calls in the demo path.
 - The PDF never claims to be legal advice, an inspection, or an appraisal.
+
+## Post-weekend backlog (recorded so we don't build it now)
+
+- Asset "health card" detail view: condition photo hero, vital stats (install date, expected life, days since inspection), vendor history list, sticky Log Maintenance / Upload Warranty drawer.
+- Maintenance ticket workflow UI (requested → scheduled → done) on top of the existing workStatus field.
+- Budget vs. actual view (annual budget, monthly dues, expenses, running reserve) — explicitly not full GL accounting.
+- Expanded registry systems beyond the demo five.
