@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CapitalTimeline from "@/components/capital-timeline";
-import { getEvents, getSystems } from "@/lib/data";
+import FundingPanel from "@/components/funding-panel";
+import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,12 @@ function today(): number {
 }
 
 export default async function Home() {
-  const [systems, events] = await Promise.all([getSystems(), getEvents()]);
+  const [building, systems, events, units] = await Promise.all([
+    getBuilding(),
+    getSystems(),
+    getEvents(),
+    getUnits(),
+  ]);
 
   return (
     <>
@@ -53,6 +59,20 @@ export default async function Home() {
           </div>
         )}
       </section>
+
+      {building && units.length > 0 && systems.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mortar pb-2 font-display text-xl font-medium">Funding</h2>
+          <div className="mt-4">
+            <FundingPanel
+              building={building}
+              systems={systems}
+              units={units}
+              today={today()}
+            />
+          </div>
+        </section>
+      )}
 
       <section className="mt-10">
         <h2 className="mortar pb-2 font-display text-xl font-medium">Record</h2>
