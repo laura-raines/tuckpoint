@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx --env-file=.env.local scripts/seed.ts"
+    "seed": "tsx --env-file=.env.local scripts/seed.ts",
+    "deploy:rules": "tsx --env-file=.env.local scripts/deploy-rules.ts"
   },
   "dependencies": {
     "firebase-admin": "^14.2.0",
