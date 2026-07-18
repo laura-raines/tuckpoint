@@ -1,3 +1,4 @@
+import CapitalTimeline from "@/components/capital-timeline";
 import { getEvents, getSystems } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,11 @@ const dollars = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
+
+function today(): number {
+  const now = new Date();
+  return now.getFullYear() + (now.getMonth() + 0.5) / 12;
+}
 
 export default async function Home() {
   const [systems, events] = await Promise.all([getSystems(), getEvents()]);
@@ -21,7 +27,9 @@ export default async function Home() {
       </p>
 
       <section className="mt-10">
-        <h2 className="mortar pb-2 font-display text-xl font-medium">Systems</h2>
+        <h2 className="mortar pb-2 font-display text-xl font-medium">
+          Capital timeline
+        </h2>
         {systems.length === 0 ? (
           <div className="mt-4 rounded-md border border-line bg-card p-4">
             <p className="label-caps text-muted">No records yet</p>
@@ -31,26 +39,9 @@ export default async function Home() {
             </p>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-line rounded-md border border-line bg-card">
-            {systems.map((system) => (
-              <li key={system.id} className="flex items-baseline justify-between p-4">
-                <div>
-                  <p className="font-display text-base font-medium">{system.name}</p>
-                  {system.material && <p className="text-muted">{system.material}</p>}
-                </div>
-                {system.status === "unknown" ? (
-                  <span className="hatch rounded px-2 py-1 text-[13px] text-muted">
-                    no permit record — add date
-                  </span>
-                ) : (
-                  <span className="data-mono text-muted">
-                    installed {system.installYear}
-                    {system.installSource === "permit" && " · permitted"}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <div className="mt-4">
+            <CapitalTimeline systems={systems} today={today()} />
+          </div>
         )}
       </section>
 
