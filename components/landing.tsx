@@ -1,5 +1,6 @@
 import { signIn } from "@/app/login/actions";
 import CapitalTimeline from "./capital-timeline";
+import HeroCanvas from "./hero-canvas";
 import { todayFraction } from "@/lib/timeline";
 import type { BuildingSystem, WithId } from "@/lib/types";
 
@@ -63,28 +64,38 @@ const SAMPLE_SYSTEMS: WithId<BuildingSystem>[] = [
 export default function Landing() {
   return (
     <div className="py-8">
-      <p className="label-caps text-muted">
-        For Chicago&rsquo;s 2–12 unit condo buildings
-      </p>
-      <h1 className="mt-2 max-w-2xl font-display text-[38px] font-semibold leading-tight">
-        The building&rsquo;s record, kept.
-      </h1>
-      <p className="mt-3 max-w-xl text-[16px] text-muted">
-        Self-managed buildings run on memory. Tuckpoint keeps it — the permit
-        history, the capital clock, the decisions on file — and turns it into
-        a seller&rsquo;s packet on demand.
-      </p>
-      <form action={signIn} className="mt-6 flex items-baseline gap-3">
-        <button
-          type="submit"
-          className="rounded bg-ink px-5 py-2.5 text-[14px] font-medium text-paper"
-        >
-          Manage your house
-        </button>
-        <span className="text-[12px] text-muted">
-          Demo session — no password.
-        </span>
-      </form>
+      <section className="relative -mx-6 overflow-hidden rounded-md">
+        <HeroCanvas />
+        <div className="relative px-6 py-16">
+          <p className="label-caps text-muted">
+            For Chicago&rsquo;s 2–12 unit condo buildings
+          </p>
+          <h1 className="mt-3 max-w-2xl font-display text-[42px] font-semibold leading-tight">
+            The building&rsquo;s record, kept.
+          </h1>
+          <p className="mt-4 max-w-xl text-[17px]">
+            Self-managed buildings run on memory. Tuckpoint keeps it — the
+            permit history, the capital clock, the decisions on file — and
+            turns it into a seller&rsquo;s packet on demand.
+          </p>
+          <p className="mt-3 max-w-xl text-[15px] text-muted">
+            Our mission: no surprise assessments. Every two-flat and three-flat
+            deserves a record as good as a managed tower&rsquo;s — kept by
+            neighbors, not a property manager.
+          </p>
+          <form action={signIn} className="mt-7 flex items-baseline gap-3">
+            <button
+              type="submit"
+              className="rounded bg-ink px-5 py-2.5 text-[15px] font-medium text-paper"
+            >
+              Manage your house
+            </button>
+            <span className="text-[13px] text-muted">
+              Demo session — no password.
+            </span>
+          </form>
+        </div>
+      </section>
 
       <section className="mt-14">
         <h2 className="mortar pb-2 font-display text-xl font-medium">
