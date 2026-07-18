@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   barLabel,
   basisLine,
@@ -82,9 +83,12 @@ export default function CapitalTimeline({
                   <div key={s.id} className="relative h-9 rounded-[3px] bg-track">
                     {s.status === "unknown" ? (
                       <div className="hatch absolute inset-0 flex items-center rounded-[3px] px-2.5">
-                        <span className="text-[12px] text-muted">
+                        <Link
+                          href="/setup/systems"
+                          className="text-[12px] text-muted underline"
+                        >
                           no permit record — add date
-                        </span>
+                        </Link>
                       </div>
                     ) : (
                       s.installYear != null && (

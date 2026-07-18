@@ -216,5 +216,42 @@ export async function confirmPermits(formData: FormData) {
   }
 
   await batch.commit();
+  redirect("/setup/systems");
+}
+
+export async function saveSystemYears(formData: FormData) {
+  const ref = buildingRef();
+  const snap = await ref.collection("systems").get();
+  const currentYear = new Date().getFullYear();
+  const writes: Promise<unknown>[] = [];
+
+  for (const doc of snap.docs) {
+    const system = doc.data() as BuildingSystem;
+    // City-permitted years are the city's record; manual entry never edits them.
+    if (system.installSource === "permit") continue;
+
+    const raw = String(formData.get(`year-${doc.id}`) ?? "").trim();
+    if (raw === "") {
+      // Cleared a manually-entered year → back to an honest gap.
+      if (system.installSource === "manual") {
+        writes.push(
+          doc.ref.update({ installYear: null, installSource: null, status: "unknown" }),
+        );
+      }
+      continue;
+    }
+
+    const year = Number(raw);
+    if (!/^\d{4}$/.test(raw) || year < 1870 || year > currentYear) {
+      redirect("/setup/systems?error=year");
+    }
+    if (year !== system.installYear || system.status !== "documented") {
+      writes.push(
+        doc.ref.update({ installYear: year, installSource: "manual", status: "documented" }),
+      );
+    }
+  }
+
+  await Promise.all(writes);
   redirect("/");
 }
