@@ -9,7 +9,8 @@ export default async function BuildingHeader() {
       <div className="mx-auto flex max-w-5xl items-baseline justify-between px-6 py-3">
         <span className="font-display text-xl font-semibold">Tuckpoint</span>
         <span className="data-mono uppercase text-muted">
-          {address} · {unitCount} units · built {yearBuilt}
+          {address} · {unitCount} units
+          {yearBuilt != null && ` · built ${yearBuilt}`}
         </span>
       </div>
     </header>

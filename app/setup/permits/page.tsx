@@ -1,0 +1,122 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getBuilding } from "@/lib/data";
+import {
+  fetchPermits,
+  permitTitle,
+  systemForPermit,
+  type SocrataPermit,
+} from "@/lib/socrata";
+import { confirmPermits } from "../actions";
+
+export const dynamic = "force-dynamic";
+
+const dollars = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+export default async function SetupPermitsPage() {
+  const building = await getBuilding();
+  if (!building) redirect("/setup");
+
+  let permits: SocrataPermit[] | null = null;
+  try {
+    permits = (
+      await fetchPermits(building.streetNumber, building.streetName)
+    ).filter((p) => p.permit_ != null);
+  } catch {
+    permits = null;
+  }
+
+  return (
+    <div className="max-w-3xl">
+      <h1 className="font-display text-[28px] font-semibold">
+        Permits on file with the city
+      </h1>
+      <p className="mt-2 text-muted">
+        <span className="data-mono">{building.address}</span> — records from
+        Chicago&rsquo;s building permit data. Nothing lands in the
+        building&rsquo;s record until you confirm it.
+      </p>
+
+      {permits === null && (
+        <div className="mt-6 rounded-md border border-line bg-card p-4">
+          <p className="label-caps text-muted">City service unavailable</p>
+          <p className="mt-2">
+            The city&rsquo;s permit service didn&rsquo;t respond. The address is
+            saved — importing can run again once the service is back.
+          </p>
+          <p className="mt-1">
+            <Link href="/setup/permits" className="underline">
+              Try again
+            </Link>
+          </p>
+        </div>
+      )}
+
+      {permits?.length === 0 && (
+        <div className="mt-6 rounded-md border border-line bg-card p-4">
+          <p>
+            No permits on file for{" "}
+            <span className="data-mono">{building.address}</span>. Work can be
+            added to the record by hand.
+          </p>
+        </div>
+      )}
+
+      <form action={confirmPermits} className="mt-6">
+        {permits != null && permits.length > 0 && (
+          <ul className="divide-y divide-line rounded-md border border-line bg-card">
+            {permits.map((permit) => {
+              const system = systemForPermit(permit);
+              const cost = Number(permit.reported_cost);
+              return (
+                <li key={permit.permit_} className="flex items-baseline gap-3 p-3">
+                  <input
+                    type="checkbox"
+                    name="permit"
+                    value={permit.permit_}
+                    defaultChecked
+                    className="relative top-0.5 size-4 shrink-0 accent-[#1f2a3d]"
+                  />
+                  <span className="data-mono shrink-0 text-muted">
+                    {permit.issue_date?.slice(0, 10) ?? "date unknown"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    {permitTitle(permit)}
+                    {system && (
+                      <span className="label-caps ml-2 rounded border border-line px-1.5 py-0.5 text-muted">
+                        {system}
+                      </span>
+                    )}
+                  </span>
+                  {Number.isFinite(cost) && cost > 0 && (
+                    <span className="data-mono shrink-0">
+                      {dollars.format(cost)}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <div className="mt-5 flex items-center gap-3">
+          <button
+            type="submit"
+            className="rounded bg-ink px-4 py-2 text-[14px] font-medium text-paper"
+          >
+            {permits != null && permits.length > 0
+              ? "Confirm records"
+              : "Continue to timeline"}
+          </button>
+          <Link href="/setup/units" className="text-[14px] text-muted underline">
+            Back
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}

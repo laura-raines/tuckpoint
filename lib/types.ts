@@ -14,7 +14,7 @@ export interface Building {
   streetNumber: string;
   streetName: string;
   unitCount: number;
-  yearBuilt: number;
+  yearBuilt: number | null;
   pin: string | null;
   fundingPolicy: FundingPolicy;
   reserves: { balance: number; asOf: string };

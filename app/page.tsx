@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CapitalTimeline from "@/components/capital-timeline";
 import { getEvents, getSystems } from "@/lib/data";
 
@@ -19,9 +20,17 @@ export default async function Home() {
 
   return (
     <>
-      <h1 className="font-display text-[28px] font-semibold">
-        The building&rsquo;s record
-      </h1>
+      <div className="flex items-baseline justify-between">
+        <h1 className="font-display text-[28px] font-semibold">
+          The building&rsquo;s record
+        </h1>
+        <Link
+          href="/setup"
+          className="rounded border border-ink px-3 py-1.5 text-[13px] font-medium"
+        >
+          Set up building
+        </Link>
+      </div>
       <p className="mt-2 text-muted">
         Permit history, capital timeline, and §22.1 disclosures.
       </p>
