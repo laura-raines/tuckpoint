@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Ledger × Masonry — exact values from CLAUDE.md. Default Tailwind palette
+     is wiped so nothing outside these tokens can ship by accident. */
+  --color-*: initial;
+  --color-ink: #1f2a3d;
+  --color-ink-soft: #46536b;
+  --color-ink-faint: #c6d0de;
+  --color-paper: #fbfaf7;
+  --color-card: #ffffff;
+  --color-line: #ddd9cf;
+  --color-track: #eae7de;
+  --color-muted: #77716a;
+  --color-stamp: #b3372e;
+  --color-stamp-bg: #fcf1f0;
+  --color-filed: #5e7255;
+  --color-filed-bg: #eff2ec;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-zilla-slab), serif;
+  --font-sans: var(--font-public-sans), sans-serif;
+  --font-mono: var(--font-plex-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Aliases matching the token names used in CLAUDE.md */
+  --ink: var(--color-ink);
+  --ink-soft: var(--color-ink-soft);
+  --ink-faint: var(--color-ink-faint);
+  --paper: var(--color-paper);
+  --card: var(--color-card);
+  --line: var(--color-line);
+  --track: var(--color-track);
+  --muted: var(--color-muted);
+  --stamp: var(--color-stamp);
+  --stamp-bg: var(--color-stamp-bg);
+  --filed: var(--color-filed);
+  --filed-bg: var(--color-filed-bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-public-sans), sans-serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+/* Label: 11/500 sans, uppercase, tracked 0.08em */
+@utility label-caps {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Data: 14 mono with tabular figures — dates, dollars, percentages, addresses, PINs */
+@utility data-mono {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Section-header "mortar line" — the only heavy border allowed anywhere */
+@utility mortar {
+  border-bottom: 2px solid var(--color-ink);
+}
+
+/* Gap state: 45° hatch for unknown data — same treatment in app and PDF gap page */
+@utility hatch {
+  border: 1px solid var(--color-line);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-track),
+    var(--color-track) 4px,
+    var(--color-line) 4px,
+    var(--color-line) 5px
+  );
 }
