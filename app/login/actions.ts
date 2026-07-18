@@ -18,5 +18,5 @@ export async function signIn() {
 
 export async function signOut() {
   (await cookies()).delete("steward");
-  redirect("/login");
+  redirect("/");
 }
