@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import CapitalTimeline from "@/components/capital-timeline";
 import FundingPanel from "@/components/funding-panel";
-import Landing from "@/components/landing";
+import SiteHome from "@/components/site-home";
 import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
 import { nearTermWindows } from "@/lib/funding";
 import { isNearTerm, projectedWindow, todayFraction, windowLabel } from "@/lib/timeline";
@@ -78,7 +78,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ welcome?: string }>;
 }) {
-  if (!(await cookies()).has("steward")) return <Landing />;
+  if (!(await cookies()).has("steward")) return <SiteHome />;
 
   const [{ welcome }, building, systems, events, units] = await Promise.all([
     searchParams,

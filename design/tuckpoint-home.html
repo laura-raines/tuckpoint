@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tuckpoint — The building's memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#232E40;
+    --ink-soft:#46536B;
+    --paper:#F8F3E9;
+    --paper-deep:#F1EADB;
+    --card:#FFFDF8;
+    --line:#DCD4C2;
+    --track:#EAE3D2;
+    --muted:#79715F;
+    --brick:#9E3B2A;
+    --brick-bg:#F7E7E2;
+    --stamp:#B3372E;
+    --filed:#5E7255;
+    --filed-bg:#EDF1E7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:'Source Serif 4',serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .slab{font-family:'Zilla Slab',serif;}
+
+  /* ---------- Nav ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 5vw;background:color-mix(in srgb, var(--paper) 94%, transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .wordmark{font-family:'Zilla Slab',serif;font-weight:600;font-size:21px;letter-spacing:.01em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px;}
+  .wordmark .mark{width:20px;height:20px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;}
+  .mark i{background:var(--brick);border-radius:1px;}
+  .mark i:nth-child(2){background:var(--ink);}
+  .mark i:nth-child(3){background:var(--ink);}
+  nav .links{display:flex;gap:26px;align-items:center;font-family:'Zilla Slab',serif;font-size:15.5px;}
+  nav .links a{color:var(--ink-soft);text-decoration:none;}
+  nav .links a:hover{color:var(--brick);}
+  .btn{display:inline-block;background:#1F2A3D;color:#FBFAF7;font-family:'Zilla Slab',serif;font-weight:600;font-size:15.5px;line-height:1;padding:12px 22px;border-radius:5px;text-decoration:none;border:1.5px solid #1F2A3D;cursor:pointer;transition:transform .12s ease, background .15s ease;}
+  .btn:hover{background:#9E3B2A;border-color:#9E3B2A;color:#FBFAF7;transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn:focus-visible{outline:3px solid #9E3B2A;outline-offset:2px;}
+  .btn.ghost{background:transparent;color:#1F2A3D;}
+  .btn.ghost:hover{background:var(--paper-deep);color:#1F2A3D;transform:none;}
+
+  /* ---------- Hero ---------- */
+  header{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;}
+  #kiln{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .hero-veil{position:absolute;inset:0;background:linear-gradient(180deg, color-mix(in srgb, var(--paper) 30%, transparent) 0%, color-mix(in srgb, var(--paper) 12%, transparent) 45%, var(--paper) 100%);}
+  .hero-inner{position:relative;z-index:2;width:min(1080px,90vw);margin:0 auto;padding-top:110px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.14em;color:var(--brick);text-transform:uppercase;margin-bottom:26px;}
+  .hero-sig{display:flex;align-items:center;justify-content:center;gap:clamp(14px,2vw,24px);}
+  .hero-sig .mark{width:clamp(44px,6vw,72px);height:clamp(44px,6vw,72px);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:clamp(4px,0.6vw,7px);}
+  .hero-sig .mark i{background:var(--brick);border-radius:2px;}
+  .hero-sig .mark i:nth-child(2){background:var(--ink);}
+  .hero-sig .mark i:nth-child(3){background:var(--ink);}
+  h1{font-family:'Zilla Slab',serif;font-weight:600;font-size:clamp(56px,9vw,104px);line-height:1;letter-spacing:-.015em;}
+  .hero-sub{font-size:clamp(17px,1.6vw,20px);color:var(--ink-soft);max-width:52ch;margin:26px auto 34px;}
+  .addr{display:flex;width:min(520px,100%);margin:0 auto;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:var(--card);}
+  .addr input{flex:1;border:none;outline:none;background:transparent;padding:15px 18px;font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--ink);}
+  .addr input::placeholder{color:var(--muted);}
+  .addr button{border:none;background:var(--ink);color:var(--paper);font-family:'Zilla Slab',serif;font-weight:500;font-size:15.5px;padding:0 22px;cursor:pointer;}
+  .addr-note{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:12px;}
+
+  /* ---------- Shared section chrome ---------- */
+  section{width:min(1080px,90vw);margin:0 auto;padding:84px 0 0;}
+  .rule-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:34px;}
+  .rule-head h2{font-family:'Zilla Slab',serif;font-weight:600;font-size:clamp(26px,3.2vw,36px);}
+  .rule-head .no{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);}
+
+  /* ---------- Reveal ---------- */
+  .reveal-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:48px;align-items:center;}
+  .reveal-copy h3{font-family:'Zilla Slab',serif;font-weight:500;font-size:23px;margin-bottom:14px;}
+  .reveal-copy p{color:var(--ink-soft);margin-bottom:14px;}
+  .permit-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px;}
+  .permit-card .ph{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+  .permit-row{display:flex;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px dotted var(--line);}
+  .permit-row:last-child{border-bottom:none;}
+  .permit-row .dt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);min-width:70px;}
+  .permit-row .what{flex:1;font-size:15.5px;}
+  .permit-row .amt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink);}
+  .permit-row.found .what::after{content:"found in city records";font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--filed);background:var(--filed-bg);border-radius:3px;padding:2px 6px;margin-left:8px;vertical-align:1px;}
+
+  /* ---------- Timeline ---------- */
+  .tl-wrap{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:26px;}
+  .tl-years{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:10px;padding-left:96px;}
+  .tl-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .tl-row .lbl{width:86px;font-family:'Zilla Slab',serif;font-size:15px;}
+  .tl-track{flex:1;height:26px;background:var(--track);border-radius:4px;position:relative;}
+  .bar{position:absolute;top:0;height:26px;border-radius:4px;display:flex;align-items:center;padding:0 9px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;white-space:nowrap;}
+  .bar.solid{background:var(--ink);color:#C6D0DE;}
+  .bar.solid.older{background:var(--ink-soft);color:#CDD5E2;}
+  .bar.proj{border:1.5px dashed var(--ink);color:var(--ink);background:var(--card);}
+  .bar.proj.near{border-color:var(--stamp);color:var(--stamp);background:var(--brick-bg);}
+  .bar.gap{background:repeating-linear-gradient(45deg,var(--track),var(--track) 5px,var(--line) 5px,var(--line) 10px);border:1px solid var(--line);color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+  .today{position:absolute;top:-6px;bottom:-6px;width:1.5px;background:var(--stamp);}
+  .today::after{content:"today";position:absolute;top:-16px;left:-14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--stamp);}
+  .tl-note{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;}
+
+  /* ---------- Math ---------- */
+  .math-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .math-cell{background:var(--card);padding:26px 24px;}
+  .math-cell .k{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .math-cell .v{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;}
+  .math-cell .v.due{color:var(--stamp);}
+  .math-cell .d{font-size:14.5px;color:var(--ink-soft);margin-top:8px;}
+  .math-line{font-family:'Zilla Slab',serif;font-size:clamp(19px,2.2vw,24px);font-weight:500;margin-top:26px;max-width:44ch;}
+  .math-line .mono{color:var(--brick);}
+
+  /* ---------- Packet ---------- */
+  .packet{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;}
+  .doc{background:#FFFFFF;border:1px solid var(--line);border-radius:4px;padding:34px 32px;box-shadow:14px 14px 0 var(--paper-deep);}
+  .doc .dh{font-family:'Zilla Slab',serif;font-weight:600;font-size:19px;border-bottom:1.5px solid var(--ink);padding-bottom:10px;margin-bottom:14px;}
+  .doc .di{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;border-bottom:1px dotted var(--line);}
+  .doc .di span:last-child{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--filed);}
+  .doc .di.pending span:last-child{color:var(--muted);}
+  .doc .stampline{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+  .packet-copy h3{font-family:'Zilla Slab',serif;font-weight:500;font-size:23px;margin-bottom:14px;}
+  .packet-copy p{color:var(--ink-soft);margin-bottom:14px;}
+  .price-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--brick);background:var(--brick-bg);border-radius:4px;padding:5px 10px;margin-top:6px;}
+
+  /* ---------- Pricing ---------- */
+  .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  .price-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:32px;}
+  .price-card.feature{border:1.5px solid var(--ink);}
+  .price-card .pn{font-family:'Zilla Slab',serif;font-weight:600;font-size:20px;margin-bottom:6px;}
+  .price-card .pv{font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:500;margin:10px 0 2px;}
+  .price-card .pv small{font-size:14px;color:var(--muted);font-weight:400;}
+  .price-card ul{list-style:none;margin-top:18px;}
+  .price-card li{font-size:15px;color:var(--ink-soft);padding:7px 0 7px 22px;position:relative;border-bottom:1px dotted var(--line);}
+  .price-card li::before{content:"—";position:absolute;left:0;color:var(--brick);}
+  .price-card li:last-child{border-bottom:none;}
+
+  /* ---------- Footer ---------- */
+  footer{margin-top:96px;border-top:2px solid var(--ink);background:var(--paper-deep);}
+  .foot-inner{width:min(1080px,90vw);margin:0 auto;padding:40px 0 52px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;}
+  .foot-inner .fm{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);line-height:2;}
+  .foot-inner .slab{font-size:19px;font-weight:600;}
+
+  @media (max-width:820px){
+    .reveal-grid,.packet,.price-grid{grid-template-columns:1fr;}
+    .math-grid{grid-template-columns:1fr;}
+    nav .links a:not(.btn){display:none;}
+    .tl-years{padding-left:0;}
+    .tl-row .lbl{width:70px;font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="wordmark" href="#"><span class="mark"><i></i><i></i><i></i><i></i></span>Tuckpoint</a>
+  <div class="links">
+    <a href="#reveal">How it works</a>
+    <a href="#timeline">The timeline</a>
+    <a href="#packet">Seller's Packet</a>
+    <a href="#pricing">Pricing</a>
+    <a class="btn" href="#">Start your record</a>
+  </div>
+</nav>
+
+<header>
+  <canvas id="kiln"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner">
+    <p class="kicker">The building's memory · for Chicago's self-managed condos</p>
+    <div class="hero-sig">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <h1>Tuckpoint</h1>
+    </div>
+    <p class="hero-sub">The shared record for two-, three-, and six-flats with no property manager — what's been done, what's due next, what each owner's share will be, and the Seller's Packet the day anyone sells.</p>
+    <div class="addr">
+      <input type="text" placeholder="2847 W PALMER ST" aria-label="Building address">
+      <button>Find my building</button>
+    </div>
+    <p class="addr-note">We start with Chicago's public permit records — the city already knows your roof.</p>
+  </div>
+</header>
+
+<section id="reveal">
+  <div class="rule-head"><h2>The record writes itself first</h2><span class="no">01 — CITY RECORDS</span></div>
+  <div class="reveal-grid">
+    <div class="reveal-copy">
+      <h3>Type your address. We do the archaeology.</h3>
+      <p>Chicago publishes every building permit going back decades. Tuckpoint reads them before asking you for anything — so your building's maintenance history arrives mostly written, and you just confirm it.</p>
+      <p>No blank forms. No hunting through a previous owner's email. The record starts full.</p>
+    </div>
+    <div class="permit-card">
+      <p class="ph">2847 W Palmer St · 3 units · b. 1908</p>
+      <div class="permit-row found"><span class="dt">2014.06</span><span class="what">Roof — modified bitumen</span><span class="amt">$18,400</span></div>
+      <div class="permit-row found"><span class="dt">2008.04</span><span class="what">Masonry repair, north wall</span><span class="amt">$9,200</span></div>
+      <div class="permit-row"><span class="dt">2025.10</span><span class="what">Boiler serviced — added by Unit 1</span><span class="amt">$340</span></div>
+      <div class="permit-row"><span class="dt">2026.05</span><span class="what">Voted 3–0: defer porch to 2027</span><span class="amt" style="color:var(--filed)">FILED</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <div class="rule-head"><h2>See the next big expense coming</h2><span class="no">02 — CAPITAL TIMELINE</span></div>
+  <div class="tl-wrap">
+    <div class="tl-years"><span>2008</span><span>2016</span><span>2024</span><span>2032</span><span>2040</span></div>
+    <div class="tl-row"><span class="lbl">Roof</span><div class="tl-track"><span class="today" style="left:56%"></span><div class="bar solid" style="left:19%;width:37%;">Roof '14</div><div class="bar proj" style="left:75%;width:14%;">'32–36</div></div></div>
+    <div class="tl-row"><span class="lbl">Masonry</span><div class="tl-track"><div class="bar solid older" style="left:0;width:56%;">Masonry '08</div><div class="bar proj near" style="left:62%;width:12%;">'28–31</div></div></div>
+    <div class="tl-row"><span class="lbl">Boiler</span><div class="tl-track"><div class="bar solid" style="left:22%;width:34%;">Boiler '15</div><div class="bar proj" style="left:69%;width:13%;">'33–37</div></div></div>
+    <div class="tl-row"><span class="lbl">Porch</span><div class="tl-track"><div class="bar gap" style="left:0;width:38%;">no permit record — add date</div></div></div>
+    <p class="tl-note">Solid = documented · dashed = projected window · hatched = honest gap. A projection from public records and typical lifespans — not an inspection.</p>
+  </div>
+</section>
+
+<section id="math">
+  <div class="rule-head"><h2>Turn a scary assessment into a monthly number</h2><span class="no">03 — FUNDING MATH</span></div>
+  <div class="math-grid">
+    <div class="math-cell"><p class="k">Projected — tuckpointing</p><p class="v due">~$22,000</p><p class="d">Window 2028–2031, from permit history and typical masonry life.</p></div>
+    <div class="math-cell"><p class="k">Your building's policy</p><p class="v">50 / 50</p><p class="d">Half from reserves, half by special assessment — split by ownership %, equally, or however your building agreed.</p></div>
+    <div class="math-cell"><p class="k">Unit 2's share</p><p class="v">$95<span style="font-size:15px;color:var(--muted)">/mo</span></p><p class="d">~$3,740 total — calm and planned, starting now instead of all at once in 2029.</p></div>
+  </div>
+  <p class="math-line">Every projection becomes <span class="mono">your number</span> — so the big repair arrives as a plan, never an ambush.</p>
+</section>
+
+<section id="packet">
+  <div class="rule-head"><h2>Sellable in one click</h2><span class="no">04 — SELLER'S PACKET</span></div>
+  <div class="packet">
+    <div class="doc">
+      <p class="dh">Section 22.1 Disclosure Statement</p>
+      <div class="di"><span>Declaration, bylaws &amp; rules</span><span>ON FILE</span></div>
+      <div class="di"><span>Liens &amp; unit account statement</span><span>CURRENT</span></div>
+      <div class="di"><span>Anticipated capital expenditures</span><span>COMPUTED</span></div>
+      <div class="di"><span>Reserve fund status</span><span>$14,200</span></div>
+      <div class="di"><span>Receipts &amp; disbursements</span><span>FY 2025</span></div>
+      <div class="di pending"><span>Pending suits or judgments</span><span>NONE</span></div>
+      <p class="stampline">Generated 2026.07.18 · 14:32 · from records maintained by the association. Not legal advice.</p>
+    </div>
+    <div class="packet-copy">
+      <h3>When a unit sells, Illinois gives you 10 business days.</h3>
+      <p>Every condo resale requires the association to produce a §22.1 disclosure — and self-managed buildings have no manager to make one. Tuckpoint generates it from your living record in minutes: computed, current, and honest about anything unknown.</p>
+      <p>Not a folder of old PDFs — a document assembled from the building's actual state, the day it's needed.</p>
+      <span class="price-tag">$149–249 per packet · paid by the selling owner</span>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="rule-head"><h2>Priced under the "call a meeting" threshold</h2><span class="no">05 — PRICING</span></div>
+  <div class="price-grid">
+    <div class="price-card feature">
+      <p class="pn">The Building Record</p>
+      <p class="pv">$50<small> / building / year</small></p>
+      <p style="color:var(--ink-soft);font-size:15px;">One owner can just expense it. The association owns the record forever.</p>
+      <ul>
+        <li>Permit history auto-imported from city records</li>
+        <li>Capital timeline with projected windows &amp; cost ranges</li>
+        <li>Funding policy &amp; per-unit share math</li>
+        <li>Decisions, votes &amp; minutes that survive owner turnover</li>
+        <li>Document vault &amp; monthly owner digest</li>
+      </ul>
+    </div>
+    <div class="price-card">
+      <p class="pn">Seller's Packet</p>
+      <p class="pv">$149<small> when a unit sells</small></p>
+      <p style="color:var(--ink-soft);font-size:15px;">Generated from the live record. Paid by the selling owner, delivered in minutes.</p>
+      <ul>
+        <li>Complete §22.1 statutory structure</li>
+        <li>Capital expenditures computed, not remembered</li>
+        <li>Timestamped record of what the association affirmed</li>
+        <li>Gap page for anything honestly unknown</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div>
+      <p class="slab" style="display:flex;align-items:center;gap:8px;"><span class="mark" style="width:16px;height:16px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;"><i style="background:var(--brick);border-radius:1px;"></i><i style="background:var(--ink);border-radius:1px;"></i><i style="background:var(--ink);border-radius:1px;"></i><i style="background:var(--brick);border-radius:1px;"></i></span>Tuckpoint</p>
+      <p class="fm" style="margin-top:8px;">The building's memory. Chicago, IL.</p>
+    </div>
+    <p class="fm">BUILT ON CHICAGO OPEN DATA<br>PREPARED FROM ASSOCIATION RECORDS · NOT LEGAL ADVICE<br>© 2026 TUCKPOINT</p>
+  </div>
+</footer>
+
+<script>
+/* WebGL hero — "kiln": slow warm strata drifting like heat over brick & limestone */
+(function(){
+  const canvas = document.getElementById('kiln');
+  const gl = canvas.getContext('webgl', {antialias:false});
+  if(!gl){ canvas.style.background='linear-gradient(160deg,#F8F3E9,#F0DFC8 55%,#E8C9B4)'; return; }
+
+  const vs = `attribute vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
+  const fs = `
+    precision mediump float;
+    uniform vec2 r; uniform float t; uniform vec2 m;
+
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
+    float noise(vec2 p){
+      vec2 i=floor(p), f=fract(p);
+      vec2 u=f*f*(3.-2.*f);
+      return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),
+                 mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);
+    }
+    float fbm(vec2 p){
+      float v=0., a=.5;
+      for(int i=0;i<5;i++){ v+=a*noise(p); p*=2.03; a*=.5; }
+      return v;
+    }
+
+    void main(){
+      vec2 uv = gl_FragCoord.xy / r;
+      vec2 q = uv; q.x *= r.x/r.y;
+
+      // slow horizontal strata — sediment / brick courses
+      float drift = t*0.018;
+      float warp = fbm(q*1.6 + vec2(drift, -drift*0.4));
+      float strata = fbm(vec2(q.x*0.8 + warp*0.9 + drift, q.y*3.2 + warp*0.6));
+
+      // gentle mouse warmth
+      float glow = smoothstep(0.75, 0.0, distance(uv, m)) * 0.14;
+
+      // warm palette: limestone cream -> sand -> terracotta -> ember
+      vec3 cream  = vec3(0.973,0.953,0.914);
+      vec3 sand   = vec3(0.941,0.874,0.753);
+      vec3 terra  = vec3(0.792,0.478,0.353);
+      vec3 ember  = vec3(0.620,0.231,0.165);
+
+      vec3 col = mix(cream, sand, smoothstep(0.25,0.62,strata));
+      col = mix(col, terra, smoothstep(0.58,0.86,strata) * 0.75);
+      col = mix(col, ember, smoothstep(0.82,0.98,strata) * (0.35 + glow));
+
+      // vertical settle toward paper at the bottom for the veil handoff
+      col = mix(col, cream, smoothstep(0.45, 0.05, uv.y) * 0.5);
+
+      // paper grain
+      float grain = (hash(gl_FragCoord.xy + t) - 0.5) * 0.028;
+      col += grain;
+
+      gl_FragColor = vec4(col, 1.0);
+    }`;
+
+  function shader(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const uR = gl.getUniformLocation(prog,'r');
+  const uT = gl.getUniformLocation(prog,'t');
+  const uM = gl.getUniformLocation(prog,'m');
+
+  let mouse = [0.5, 0.6], target = [0.5, 0.6];
+  window.addEventListener('pointermove', e=>{
+    target = [e.clientX/window.innerWidth, 1.0 - e.clientY/window.innerHeight];
+  }, {passive:true});
+
+  function resize(){
+    const dpr = Math.min(window.devicePixelRatio||1, 1.75);
+    canvas.width = canvas.clientWidth*dpr;
+    canvas.height = canvas.clientHeight*dpr;
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize', resize); resize();
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let start = performance.now();
+  function frame(now){
+    mouse[0]+= (target[0]-mouse[0])*0.04;
+    mouse[1]+= (target[1]-mouse[1])*0.04;
+    gl.uniform2f(uR, canvas.width, canvas.height);
+    gl.uniform1f(uT, reduce ? 0 : (now-start)/1000);
+    gl.uniform2f(uM, mouse[0], mouse[1]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if(!reduce) requestAnimationFrame(frame); 
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
