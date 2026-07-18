@@ -64,7 +64,16 @@ export const SYSTEM_DEFAULTS: Record<
   Porch: { category: "porch", typicalLifeMin: 15, typicalLifeMax: 20, estCostLow: 15000, estCostHigh: 30000 },
   Boiler: { category: "heating", typicalLifeMin: 25, typicalLifeMax: 30, estCostLow: 9000, estCostHigh: 14000 },
   Electrical: { category: "electrical", typicalLifeMin: 30, typicalLifeMax: 40, estCostLow: 8000, estCostHigh: 15000 },
+  "Water heater": { category: "plumbing", typicalLifeMin: 10, typicalLifeMax: 15, estCostLow: 1800, estCostHigh: 3500 },
 };
+
+/** Case-insensitive defaults lookup for manually added items. */
+export function defaultsForName(name: string) {
+  const key = Object.keys(SYSTEM_DEFAULTS).find(
+    (k) => k.toLowerCase() === name.toLowerCase(),
+  );
+  return key ? { name: key, ...SYSTEM_DEFAULTS[key] } : null;
+}
 
 // Every building shows these rows; anything without a record is an honest gap.
 export const BASELINE_SYSTEMS = ["Roof", "Masonry", "Porch", "Boiler"];

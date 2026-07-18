@@ -6,6 +6,7 @@ import { requireFirestore } from "@/lib/firestore";
 import {
   BASELINE_SYSTEMS,
   SYSTEM_DEFAULTS,
+  defaultsForName,
   fetchPermits,
   formatPin,
   permitTitle,
@@ -224,6 +225,39 @@ export async function saveSystemYears(formData: FormData) {
   const snap = await ref.collection("systems").get();
   const currentYear = new Date().getFullYear();
   const writes: Promise<unknown>[] = [];
+
+  // "Add an item" row: any tracked part of the building plus the year it was
+  // last updated, fixed, or maintained.
+  const newName = String(formData.get("new-name") ?? "").replace(/\s+/g, " ").trim();
+  const newYearRaw = String(formData.get("new-year") ?? "").trim();
+  if (newName !== "") {
+    const year = Number(newYearRaw);
+    if (!/^\d{4}$/.test(newYearRaw) || year < 1870 || year > currentYear) {
+      redirect("/setup/systems?error=year");
+    }
+    if (newName.length > 40) redirect("/setup/systems?error=name");
+    const defaults = defaultsForName(newName);
+    const id = (defaults?.name ?? newName).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const existing = snap.docs.find((d) => d.id === id)?.data() as
+      | BuildingSystem
+      | undefined;
+    if (existing?.installSource === "permit") {
+      redirect("/setup/systems?error=exists");
+    }
+    const system: BuildingSystem = {
+      name: defaults?.name ?? newName,
+      category: existing?.category ?? defaults?.category ?? "other",
+      installYear: year,
+      installSource: "manual",
+      material: existing?.material ?? null,
+      typicalLifeMin: existing?.typicalLifeMin ?? defaults?.typicalLifeMin ?? null,
+      typicalLifeMax: existing?.typicalLifeMax ?? defaults?.typicalLifeMax ?? null,
+      estCostLow: existing?.estCostLow ?? defaults?.estCostLow ?? null,
+      estCostHigh: existing?.estCostHigh ?? defaults?.estCostHigh ?? null,
+      status: "documented",
+    };
+    writes.push(ref.collection("systems").doc(id).set(system));
+  }
 
   for (const doc of snap.docs) {
     const system = doc.data() as BuildingSystem;

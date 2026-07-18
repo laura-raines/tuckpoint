@@ -7,6 +7,12 @@ export const dynamic = "force-dynamic";
 
 const ROW_ORDER = ["roof", "masonry", "porch", "boiler", "water heater", "electrical"];
 
+const ERRORS: Record<string, string> = {
+  year: "Years need four digits, 1870 or later, not in the future.",
+  name: "Item names need to stay under 40 characters.",
+  exists: "That item is already documented by a city permit — its year comes from the city record.",
+};
+
 export default async function SetupSystemsPage({
   searchParams,
 }: {
@@ -36,9 +42,9 @@ export default async function SetupSystemsPage({
         city&rsquo;s.
       </p>
 
-      {error === "year" && (
+      {error && ERRORS[error] && (
         <div className="mt-4 rounded border border-stamp bg-stamp-bg p-3 text-[13px] text-stamp">
-          Years need four digits, 1870 or later, not in the future.
+          {ERRORS[error]}
         </div>
       )}
 
@@ -70,6 +76,22 @@ export default async function SetupSystemsPage({
               )}
             </div>
           ))}
+          <div className="flex items-center gap-3 bg-paper p-3">
+            <span className="label-caps w-24 text-muted">Add an item</span>
+            <input
+              name="new-name"
+              placeholder="Water heater"
+              maxLength={40}
+              className="min-w-0 flex-1 rounded border border-line bg-card px-3 py-1.5 text-[14px] outline-none focus:border-ink"
+            />
+            <input
+              name="new-year"
+              inputMode="numeric"
+              pattern="\d{4}"
+              placeholder="year"
+              className="data-mono w-24 rounded border border-line bg-card px-3 py-1.5 outline-none focus:border-ink"
+            />
+          </div>
         </div>
 
         <div className="mt-5 flex items-center gap-3">
