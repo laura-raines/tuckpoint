@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Ledger × Masonry — exact values from CLAUDE.md. Default Tailwind palette
-     is wiped so nothing outside these tokens can ship by accident. */
+  /* Ledger × Masonry, warm edition — exact values live in CLAUDE.md. Default
+     Tailwind palette is wiped so nothing outside these tokens can ship. */
   --color-*: initial;
-  --color-ink: #1f2a3d;
-  --color-ink-soft: #46536b;
-  --color-ink-faint: #c6d0de;
-  --color-paper: #fbfaf7;
-  --color-card: #ffffff;
-  --color-line: #ddd9cf;
-  --color-track: #eae7de;
-  --color-muted: #77716a;
-  --color-stamp: #b3372e;
-  --color-stamp-bg: #fcf1f0;
-  --color-filed: #5e7255;
-  --color-filed-bg: #eff2ec;
+  --color-ink: #3b2e25;
+  --color-ink-soft: #6f5b49;
+  --color-ink-faint: #ebdcc9;
+  --color-paper: #faf3e7;
+  --color-card: #fffdf8;
+  --color-line: #e3d6c0;
+  --color-track: #f1e8d7;
+  --color-muted: #7a6a55;
+  --color-stamp: #a0452a;
+  --color-stamp-bg: #faece2;
+  --color-filed: #5d6c45;
+  --color-filed-bg: #eff2e3;
 }
 
 @theme inline {
   --font-display: var(--font-zilla-slab), serif;
-  --font-sans: var(--font-public-sans), sans-serif;
+  --font-sans: var(--font-lora), Georgia, serif;
   --font-mono: var(--font-plex-mono), monospace;
 }
 
@@ -43,12 +43,12 @@
 body {
   background: var(--color-paper);
   color: var(--color-ink);
-  font-family: var(--font-public-sans), sans-serif;
-  font-size: 14.5px;
-  line-height: 1.5;
+  font-family: var(--font-lora), Georgia, serif;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-/* Label: 11/500 sans, uppercase, tracked 0.08em */
+/* Label: 11/500, uppercase, tracked 0.08em */
 @utility label-caps {
   font-size: 11px;
   font-weight: 500;
@@ -74,8 +74,27 @@ body {
   background: repeating-linear-gradient(
     45deg,
     var(--color-track),
-    var(--color-track) 4px,
-    var(--color-line) 4px,
-    var(--color-line) 5px
+    var(--color-track) 5px,
+    var(--color-line) 5px,
+    var(--color-line) 6px
   );
+}
+
+/* Timeline bars draw themselves in */
+@utility bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-grow {
+    animation: none;
+  }
 }

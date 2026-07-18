@@ -22,10 +22,10 @@ Font.register({
   ],
 });
 Font.register({
-  family: "Public Sans",
+  family: "Lora",
   fonts: [
-    { src: font("public-sans-400.ttf"), fontWeight: 400 },
-    { src: font("public-sans-500.ttf"), fontWeight: 500 },
+    { src: font("lora-400.ttf"), fontWeight: 400 },
+    { src: font("lora-500.ttf"), fontWeight: 500 },
   ],
 });
 Font.register({
@@ -37,16 +37,16 @@ Font.register({
 });
 Font.registerHyphenationCallback((word) => [word]);
 
-const INK = "#1F2A3D";
-const MUTED = "#77716A";
-const LINE = "#DDD9CF";
+const INK = "#3B2E25";
+const MUTED = "#7A6A55";
+const LINE = "#E3D6C0";
 
 const s = StyleSheet.create({
   page: {
     paddingTop: 64,
     paddingBottom: 76,
     paddingHorizontal: 64,
-    fontFamily: "Public Sans",
+    fontFamily: "Lora",
     fontSize: 10,
     color: INK,
     lineHeight: 1.5,

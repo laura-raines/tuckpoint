@@ -10,6 +10,10 @@ Business model (context, not weekend scope): $50/building/year subscription (ass
 
 **Positioning rule that affects copy:** never describe this as "HOA management software." It is the building's record. Come for the roof clock, stay for everything.
 
+## Landing page
+
+Signed-out visitors get a landing at `/`: warm generative WebGL hero (raw WebGL, zero dependencies, reduced-motion + no-GL fallbacks), mission statement, the sample roof-clock timeline rendered by the real component, and the three pillars. CTA: "Manage your house".
+
 ## Weekend scope (build EXACTLY this, resist everything else)
 
 Demo arc, in order:
@@ -44,18 +48,18 @@ Register: a well-designed public institution. Warm, sturdy, plainspoken. The app
 ### Colors (exact values, no substitutes, no Tailwind default palette)
 
 ```
---ink:        #1F2A3D   /* primary text, structure, documented history */
---ink-soft:   #46536B   /* secondary fills, older history bars */
---ink-faint:  #C6D0DE   /* text on ink backgrounds */
---paper:      #FBFAF7   /* page background */
---card:       #FFFFFF   /* raised cards */
---line:       #DDD9CF   /* hairline borders */
---track:      #EAE7DE   /* timeline empty track */
---muted:      #77716A   /* secondary text, labels */
---stamp:      #B3372E   /* ONLY: projected costs, money due, action needed */
---stamp-bg:   #FCF1F0   /* tint behind stamp elements */
---filed:      #5E7255   /* ONLY: confirmations — filed, approved, paid, complete */
---filed-bg:   #EFF2EC   /* tint behind filed elements */
+--ink:        #3B2E25   /* primary text, structure, documented history (warm espresso) */
+--ink-soft:   #6F5B49   /* secondary fills, older history bars */
+--ink-faint:  #EBDCC9   /* text on ink backgrounds */
+--paper:      #FAF3E7   /* page background (warm cream) */
+--card:       #FFFDF8   /* raised cards */
+--line:       #E3D6C0   /* hairline borders */
+--track:      #F1E8D7   /* timeline empty track */
+--muted:      #7A6A55   /* secondary text, labels */
+--stamp:      #A0452A   /* ONLY: projected costs, money due, action needed (terracotta) */
+--stamp-bg:   #FAECE2   /* tint behind stamp elements */
+--filed:      #5D6C45   /* ONLY: confirmations — filed, approved, paid, complete (olive) */
+--filed-bg:   #EFF2E3   /* tint behind filed elements */
 ```
 
 Color discipline (non-negotiable):
@@ -67,9 +71,9 @@ Color discipline (non-negotiable):
 ### Typography
 
 - **Display/headers:** Zilla Slab (600 for page titles, 500 for section heads). Google Fonts via `next/font`.
-- **Body/UI:** Public Sans (400/500).
+- **Body/UI:** Lora (400/500) — warm readable serif.
 - **All dates, dollars, percentages, addresses, PINs:** IBM Plex Mono (400/500). This is the signature — data always looks like a record. Use tabular figures.
-- Scale: page title 28/600 slab · section 20/500 slab · card head 16/500 slab · body 14.5/400 sans · label 11/500 sans uppercase tracked 0.08em · data 14 mono.
+- Scale: page title 28/600 slab · section 20/500 slab · card head 16/500 slab · body 15/400 serif · label 11/500 uppercase tracked 0.08em · data 14 mono.
 - Sentence case everywhere. Labels may be uppercase (they're labels). Never Title Case.
 
 ### Component rules
@@ -81,6 +85,8 @@ Color discipline (non-negotiable):
 
 ### The capital timeline (hero screen — build this best)
 
+- Include a key under the chart (work on record / projected window / due within ~5 years / no record / today). Bar labels carry the year only — the row label carries the name.
+
 - Horizontal rows, one per system (Roof, Masonry, Porch, Boiler, Water heater). Row label left (56–90px), track fills remaining width. Years axis on top; a 1.5px `--stamp` vertical rule marks today.
 - Documented life: solid bar, `--ink` (most recent work) or `--ink-soft` (older). Label inside: "Roof '14".
 - Projected window: dashed 1.5px border bar, transparent or tint fill. Ink dash = far out; stamp dash + `--stamp-bg` fill = within ~5 years. ALWAYS a range ("'28–31"), never a single year — false precision is the enemy.
@@ -89,7 +95,7 @@ Color discipline (non-negotiable):
 
 ### The §22.1 PDF (a second product — do not make it look like the app)
 
-- ink on white, serif body (Zilla Slab headers, a readable serif or Public Sans body), Plex Mono for all figures and dates.
+- ink on white, serif body (Zilla Slab headers, Lora body), Plex Mono for all figures and dates.
 - Cover page: building address, "Section 22.1 Disclosure Statement", generation date/time in mono, "Prepared via Tuckpoint from association records."
 - Sections numbered in the Act's own order: (1) Declaration/bylaws/rules [list of docs on file], (2) Liens & unit account, (3) Anticipated capital expenditures (next 2 yrs — pulled from timeline + funding policy, showing approved decisions), (4) Reserve fund status, (5) Receipts & disbursements, (6) Pending suits/judgments, (7) Insurance evidence.
 - Unknowns get one graceful "Items pending association confirmation" page — never silently omitted.

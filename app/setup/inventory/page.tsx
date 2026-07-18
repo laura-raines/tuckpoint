@@ -67,7 +67,7 @@ export default async function SetupInventoryPage({
                 name={`have-${id}`}
                 defaultChecked={system != null}
                 disabled={system?.installSource === "permit"}
-                className="size-4 shrink-0 accent-[#1f2a3d]"
+                className="size-4 shrink-0 accent-[#3b2e25]"
               />
               <span className="w-28 text-[13px] font-medium">{name}</span>
               {system?.installSource === "permit" ? (

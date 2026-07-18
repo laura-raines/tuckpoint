@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Public_Sans, Zilla_Slab } from "next/font/google";
+import { IBM_Plex_Mono, Lora, Zilla_Slab } from "next/font/google";
 import "./globals.css";
 import BuildingHeader from "@/components/building-header";
 
@@ -9,9 +9,10 @@ const zillaSlab = Zilla_Slab({
   variable: "--font-zilla-slab",
 });
 
-const publicSans = Public_Sans({
+const lora = Lora({
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
-  variable: "--font-public-sans",
+  variable: "--font-lora",
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -34,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${zillaSlab.variable} ${publicSans.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${zillaSlab.variable} ${lora.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <BuildingHeader />
