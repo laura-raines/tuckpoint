@@ -33,9 +33,9 @@ export function windowLabel(w: ProjectedWindow): string {
   return `’${String(w.startYear).slice(-2)}–${String(w.endYear).slice(-2)}`;
 }
 
-/** Label inside a documented bar: "Roof ’14". */
-export function barLabel(name: string, installYear: number): string {
-  return `${name} ’${String(installYear).slice(-2)}`;
+/** Label inside a documented bar — just the year; the row already names it. */
+export function barLabel(installYear: number): string {
+  return `’${String(installYear).slice(-2)}`;
 }
 
 /** "Permitted 2014 · modified bitumen · typical life 18–22 yrs" */

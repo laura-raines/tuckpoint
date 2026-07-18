@@ -35,14 +35,17 @@ export default function CapitalTimeline({
   for (let y = Math.ceil(range.min / 5) * 5; y <= range.max; y += 5) ticks.push(y);
 
   return (
-    <div className="rounded-md border border-line bg-card p-4">
+    <div className="rounded-md border border-line bg-card p-5">
       <div className="flex">
         {/* row labels — structure mirrors the axis + tracks stack exactly */}
-        <div className="w-[90px] shrink-0 pr-3">
-          <div className="h-5" aria-hidden />
-          <div className="flex flex-col gap-3">
+        <div className="w-[110px] shrink-0 pr-4">
+          <div className="h-6" aria-hidden />
+          <div className="flex flex-col gap-4">
             {ordered.map((s) => (
-              <div key={s.id} className="flex h-9 items-center text-[13px] font-medium">
+              <div
+                key={s.id}
+                className="flex h-11 items-center font-display text-[15px] font-medium"
+              >
                 {s.name}
               </div>
             ))}
@@ -51,11 +54,11 @@ export default function CapitalTimeline({
 
         {/* axis + tracks share one coordinate space */}
         <div className="min-w-0 flex-1">
-          <div className="relative h-5">
+          <div className="relative h-6">
             {ticks.map((y) => (
               <span
                 key={y}
-                className="data-mono absolute top-0 -translate-x-1/2 text-[11px] text-muted"
+                className="data-mono absolute top-0 -translate-x-1/2 text-[12px] text-muted"
                 style={{ left: `${pct(y)}%` }}
               >
                 {y}
@@ -71,7 +74,7 @@ export default function CapitalTimeline({
               aria-hidden
             />
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {ordered.map((s) => {
                 const window = s.status === "unknown" ? null : projectedWindow(s);
                 const nearTerm = window != null && isNearTerm(window, todayYear);
@@ -80,12 +83,12 @@ export default function CapitalTimeline({
                 const recent = s.installYear != null && s.installYear >= todayYear - 15;
 
                 return (
-                  <div key={s.id} className="relative h-9 rounded-[3px] bg-track">
+                  <div key={s.id} className="relative h-11 rounded-[3px] bg-track">
                     {s.status === "unknown" ? (
-                      <div className="hatch absolute inset-0 flex items-center rounded-[3px] px-2.5">
+                      <div className="hatch absolute inset-0 flex items-center rounded-[3px] px-3">
                         <Link
                           href="/setup/inventory"
-                          className="text-[12px] text-muted underline"
+                          className="text-[13px] text-muted underline"
                         >
                           no permit record — add date
                         </Link>
@@ -93,14 +96,14 @@ export default function CapitalTimeline({
                     ) : (
                       s.installYear != null && (
                         <div
-                          className={`absolute inset-y-0 flex items-center overflow-hidden rounded-[3px] px-2 ${recent ? "bg-ink" : "bg-ink-soft"}`}
+                          className={`bar-grow absolute inset-y-0 flex items-center overflow-hidden rounded-[3px] px-2.5 ${recent ? "bg-ink" : "bg-ink-soft"}`}
                           style={{
                             left: `${pct(s.installYear)}%`,
                             width: `${pct(today) - pct(s.installYear)}%`,
                           }}
                         >
-                          <span className="data-mono whitespace-nowrap text-[12px] text-ink-faint">
-                            {barLabel(s.name, s.installYear)}
+                          <span className="data-mono whitespace-nowrap text-[13px] text-ink-faint">
+                            {barLabel(s.installYear)}
                           </span>
                         </div>
                       )
@@ -108,7 +111,7 @@ export default function CapitalTimeline({
 
                     {window && (
                       <div
-                        className={`group absolute inset-y-0 flex items-center justify-center rounded-[3px] border-[1.5px] border-dashed ${
+                        className={`group bar-grow absolute inset-y-0 flex items-center justify-center rounded-[3px] border-[1.5px] border-dashed ${
                           nearTerm ? "border-stamp bg-stamp-bg" : "border-ink"
                         }`}
                         style={{
@@ -117,13 +120,13 @@ export default function CapitalTimeline({
                         }}
                       >
                         <span
-                          className={`data-mono whitespace-nowrap text-[12px] ${nearTerm ? "text-stamp" : "text-muted"}`}
+                          className={`data-mono whitespace-nowrap text-[13px] ${nearTerm ? "text-stamp" : "text-muted"}`}
                         >
                           {windowLabel(window)}
                         </span>
                         {basis && (
                           <span
-                            className={`pointer-events-none absolute bottom-full z-20 mb-1.5 hidden whitespace-nowrap rounded border border-line bg-card px-2.5 py-1.5 text-[12px] group-hover:block ${
+                            className={`pointer-events-none absolute bottom-full z-20 mb-1.5 hidden whitespace-nowrap rounded border border-line bg-card px-2.5 py-1.5 text-[13px] group-hover:block ${
                               pct(window.startYear) > 55 ? "right-0" : "left-0"
                             }`}
                           >
@@ -140,8 +143,39 @@ export default function CapitalTimeline({
         </div>
       </div>
 
-      <p className="mt-4 text-[12px] text-muted">
-        A projection from public records and typical lifespans — not an inspection.
+      {/* key */}
+      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-line pt-4 text-[13px] text-muted">
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-3.5 w-6 rounded-[2px] bg-ink" aria-hidden />
+          work on record
+        </span>
+        <span className="flex items-center gap-2">
+          <span
+            className="inline-block h-3.5 w-6 rounded-[2px] border-[1.5px] border-dashed border-ink"
+            aria-hidden
+          />
+          projected window
+        </span>
+        <span className="flex items-center gap-2">
+          <span
+            className="inline-block h-3.5 w-6 rounded-[2px] border-[1.5px] border-dashed border-stamp bg-stamp-bg"
+            aria-hidden
+          />
+          due within ~5 years
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="hatch inline-block h-3.5 w-6 rounded-[2px]" aria-hidden />
+          no record yet
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block h-3.5 w-[2px] bg-stamp" aria-hidden />
+          today
+        </span>
+      </div>
+
+      <p className="mt-3 text-[13px] text-muted">
+        A projection from public records and typical lifespans — not an
+        inspection.
       </p>
     </div>
   );
