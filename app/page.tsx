@@ -96,6 +96,29 @@ export default async function Home() {
             {whatsNext(systems, todayFraction())}
           </p>
         )}
+        {systems.some((s) => s.status === "unknown") && (
+          <div className="mt-4 flex items-center justify-between gap-4 rounded-md border border-line bg-card p-4">
+            <div>
+              <p className="label-caps text-muted">Finish the record</p>
+              <p className="mt-1">
+                {systems
+                  .filter((s) => s.status === "unknown")
+                  .map((s) => s.name)
+                  .join(", ")}{" "}
+                {systems.filter((s) => s.status === "unknown").length === 1
+                  ? "has"
+                  : "have"}{" "}
+                no record yet. Add what you remember — a year is enough.
+              </p>
+            </div>
+            <Link
+              href="/setup/systems"
+              className="shrink-0 rounded border border-ink px-3 py-1.5 text-[13px] font-medium"
+            >
+              Add last work
+            </Link>
+          </div>
+        )}
         {systems.length === 0 ? (
           <div className="mt-4 rounded-md border border-line bg-card p-4">
             <p className="label-caps text-muted">No records yet</p>
