@@ -4,6 +4,7 @@ import { BUILDING_ID } from "../lib/constants";
 import { requireFirestore } from "../lib/firestore";
 import type {
   Building,
+  BuildingDocument,
   BuildingEvent,
   BuildingSystem,
   Unit,
@@ -131,6 +132,33 @@ const events: Record<string, BuildingEvent> = {
   },
 };
 
+const documents: Record<string, BuildingDocument> = {
+  "doc-declaration": {
+    category: "declaration",
+    title: "Declaration of condominium ownership",
+    url: "",
+    uploadedAt: "2024-02-10",
+  },
+  "doc-bylaws": {
+    category: "bylaws",
+    title: "Association bylaws (amended 2019)",
+    url: "",
+    uploadedAt: "2024-02-10",
+  },
+  "doc-insurance": {
+    category: "insurance",
+    title: "Certificate of insurance — FY 2026",
+    url: "",
+    uploadedAt: "2026-01-05",
+  },
+  "doc-minutes-2026": {
+    category: "minutes",
+    title: "Annual meeting minutes — May 2026",
+    url: "",
+    uploadedAt: "2026-05-12",
+  },
+};
+
 async function main() {
   const db = requireFirestore();
   const ref = db.collection("buildings").doc(BUILDING_ID);
@@ -146,11 +174,15 @@ async function main() {
   for (const [id, event] of Object.entries(events)) {
     batch.set(ref.collection("events").doc(id), event);
   }
+  for (const [id, doc] of Object.entries(documents)) {
+    batch.set(ref.collection("documents").doc(id), doc);
+  }
 
   await batch.commit();
   console.log(
     `seeded buildings/${BUILDING_ID}: ${Object.keys(units).length} units, ` +
-      `${Object.keys(systems).length} systems, ${Object.keys(events).length} events`,
+      `${Object.keys(systems).length} systems, ${Object.keys(events).length} events, ` +
+      `${Object.keys(documents).length} documents`,
   );
 }
 

@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import CapitalTimeline from "@/components/capital-timeline";
 import FundingPanel from "@/components/funding-panel";
 import SiteHome from "@/components/site-home";
-import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
+import {
+  getBuilding,
+  getDocuments,
+  getEvents,
+  getSystems,
+  getUnits,
+} from "@/lib/data";
 import { nearTermWindows } from "@/lib/funding";
 import { isNearTerm, projectedWindow, todayFraction, windowLabel } from "@/lib/timeline";
 import type { Building, BuildingSystem, Unit, WithId } from "@/lib/types";
@@ -80,13 +86,15 @@ export default async function Home({
 }) {
   if (!(await cookies()).has("steward")) return <SiteHome />;
 
-  const [{ welcome }, building, systems, events, units] = await Promise.all([
-    searchParams,
-    getBuilding(),
-    getSystems(),
-    getEvents(),
-    getUnits(),
-  ]);
+  const [{ welcome }, building, systems, events, units, documents] =
+    await Promise.all([
+      searchParams,
+      getBuilding(),
+      getSystems(),
+      getEvents(),
+      getUnits(),
+      getDocuments(),
+    ]);
   // Never a blank dashboard: an empty record goes to onboarding.
   if (!building) redirect("/setup");
 
@@ -217,6 +225,35 @@ export default async function Home({
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="mt-10">
+        <div className="mortar flex items-baseline justify-between pb-2">
+          <h2 className="font-display text-xl font-medium">Documents</h2>
+          <Link href="/documents" className="text-[13px] text-muted underline">
+            Manage vault
+          </Link>
+        </div>
+        <div className="mt-4 rounded-md border border-line bg-card p-4">
+          {documents.length === 0 ? (
+            <p className="text-muted">
+              No documents on file yet.{" "}
+              <Link href="/documents" className="underline">
+                Add the declaration, insurance, and minutes
+              </Link>{" "}
+              — they feed the Seller&rsquo;s Packet.
+            </p>
+          ) : (
+            <p>
+              <span className="data-mono">{documents.length}</span> on file:{" "}
+              {[...new Set(documents.map((d) => d.category))].join(", ")}.{" "}
+              <Link href="/documents" className="underline">
+                Manage vault
+              </Link>
+              .
+            </p>
+          )}
+        </div>
       </section>
     </>
   );
