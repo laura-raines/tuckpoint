@@ -7,6 +7,12 @@ export interface ProjectedWindow {
   endYear: number;
 }
 
+/** Now as a fractional year, e.g. 2026.54 — the timeline's x-axis unit. */
+export function todayFraction(): number {
+  const now = new Date();
+  return now.getFullYear() + (now.getMonth() + 0.5) / 12;
+}
+
 export function projectedWindow(s: BuildingSystem): ProjectedWindow | null {
   if (s.installYear == null || s.typicalLifeMin == null || s.typicalLifeMax == null) {
     return null;

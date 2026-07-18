@@ -2,14 +2,15 @@ import { BUILDING_ID } from "./constants";
 import { firestore } from "./firestore";
 import type {
   Building,
+  BuildingDocument,
   BuildingEvent,
   BuildingSystem,
   Unit,
   WithId,
 } from "./types";
 
-// Read path only (build step 2). Every reader degrades to empty when
-// Firestore is unreachable so the shell still renders before setup.
+// Read path (build step 2). Every reader degrades to empty when Firestore is
+// unreachable so the shell still renders before setup.
 
 function buildingRef() {
   return firestore()?.collection("buildings").doc(BUILDING_ID) ?? null;
@@ -48,4 +49,8 @@ export function getSystems(): Promise<WithId<BuildingSystem>[]> {
 
 export function getEvents(): Promise<WithId<BuildingEvent>[]> {
   return getSubcollection<BuildingEvent>("events", "date");
+}
+
+export function getDocuments(): Promise<WithId<BuildingDocument>[]> {
+  return getSubcollection<BuildingDocument>("documents");
 }

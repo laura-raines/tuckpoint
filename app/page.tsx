@@ -2,6 +2,7 @@ import Link from "next/link";
 import CapitalTimeline from "@/components/capital-timeline";
 import FundingPanel from "@/components/funding-panel";
 import { getBuilding, getEvents, getSystems, getUnits } from "@/lib/data";
+import { todayFraction } from "@/lib/timeline";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +11,6 @@ const dollars = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
-
-function today(): number {
-  const now = new Date();
-  return now.getFullYear() + (now.getMonth() + 0.5) / 12;
-}
 
 export default async function Home() {
   const [building, systems, events, units] = await Promise.all([
@@ -30,12 +26,21 @@ export default async function Home() {
         <h1 className="font-display text-[28px] font-semibold">
           The building&rsquo;s record
         </h1>
-        <Link
-          href="/setup"
-          className="rounded border border-ink px-3 py-1.5 text-[13px] font-medium"
-        >
-          Set up building
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/setup"
+            className="rounded border border-ink px-3 py-1.5 text-[13px] font-medium"
+          >
+            Set up building
+          </Link>
+          <a
+            href="/api/disclosure"
+            target="_blank"
+            className="rounded bg-ink px-3 py-1.5 text-[13px] font-medium text-paper"
+          >
+            Generate §22.1
+          </a>
+        </div>
       </div>
       <p className="mt-2 text-muted">
         Permit history, capital timeline, and §22.1 disclosures.
@@ -55,7 +60,7 @@ export default async function Home() {
           </div>
         ) : (
           <div className="mt-4">
-            <CapitalTimeline systems={systems} today={today()} />
+            <CapitalTimeline systems={systems} today={todayFraction()} />
           </div>
         )}
       </section>
@@ -68,7 +73,7 @@ export default async function Home() {
               building={building}
               systems={systems}
               units={units}
-              today={today()}
+              today={todayFraction()}
             />
           </div>
         </section>
